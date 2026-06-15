@@ -95,8 +95,8 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
                     continue;
                 }
 
-                Announce($"Nuclear Fission Explosive detonation in {FormatRemaining(threshold)}.");
-                AnnounceXenos($"Винищувач-вуликів вибухне за {FormatRemainingUkrainian(threshold)}.");
+                Announce(Loc.GetString("btp-nuke-detonation-countdown", ("remaining", FormatRemaining(threshold))));
+                AnnounceXenos(Loc.GetString("btp-nuke-xeno-detonation-countdown", ("remaining", FormatRemainingUkrainian(threshold))));
 
                 if (threshold == 180)
                     StartWarningSiren(charge, xform.MapID);
@@ -120,20 +120,20 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (ent.Comp.Armed)
         {
             var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
-            args.PushMarkup($"[color=red]It is armed. Estimated detonation in {FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds))}.[/color]");
+            args.PushMarkup(Loc.GetString("btp-nuke-examine-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))));
             return;
         }
 
         if (ent.Comp.Activating)
         {
-            args.PushMarkup("[color=yellow]Its activation sequence is being entered.[/color]");
+            args.PushMarkup(Loc.GetString("btp-nuke-examine-activating"));
             return;
         }
 
         if (HasAuthenticationDisk(ent))
-            args.PushMarkup("[color=cyan]The charge is decoded, anchored authorization is available, and a nuclear authentication disk is inserted.[/color]");
+            args.PushMarkup(Loc.GetString("btp-nuke-examine-disk-inserted"));
         else
-            args.PushMarkup("[color=cyan]The charge is decoded and ready. Anchor it, insert a nuclear authentication disk, then use it in hand to begin the activation sequence.[/color]");
+            args.PushMarkup(Loc.GetString("btp-nuke-examine-ready"));
     }
 
     private void OnItemSlotInsertAttempt(Entity<BTPRMCNuclearChargeComponent> ent, ref ItemSlotInsertAttemptEvent args)
@@ -148,21 +148,21 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (ent.Comp.Armed || ent.Comp.Detonated || ent.Comp.Activating)
         {
             args.Cancelled = true;
-            _popup.PopupClient("The authentication port is locked while the nuclear protocol is active.", ent, args.User.Value, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-port-locked"), ent, args.User.Value, PopupType.MediumCaution);
             return;
         }
 
         if (!Transform(ent).Anchored)
         {
             args.Cancelled = true;
-            _popup.PopupClient("Anchor the charge before inserting the nuclear authentication disk.", ent, args.User.Value, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-anchor-before-disk"), ent, args.User.Value, PopupType.MediumCaution);
             return;
         }
 
         if (!_access.IsAllowed(args.User.Value, ent))
         {
             args.Cancelled = true;
-            _popup.PopupClient("Officer authorization is required to insert the nuclear authentication disk.", ent, args.User.Value, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-officer-disk-required"), ent, args.User.Value, PopupType.MediumCaution);
         }
     }
 
@@ -175,7 +175,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         {
             args.Cancelled = true;
             if (args.User != null)
-                _popup.PopupClient("The authentication port is locked while the nuclear protocol is active.", ent, args.User.Value, PopupType.MediumCaution);
+                _popup.PopupClient(Loc.GetString("btp-nuke-popup-port-locked"), ent, args.User.Value, PopupType.MediumCaution);
         }
     }
 
@@ -188,31 +188,31 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (ent.Comp.Armed)
         {
             var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
-            _popup.PopupClient($"The charge is already armed. Detonation in {FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds))}.", ent, args.User, PopupType.LargeCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-already-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))), ent, args.User, PopupType.LargeCaution);
             return;
         }
 
         if (ent.Comp.Activating)
         {
-            _popup.PopupClient("The charge is already processing an activation sequence.", ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-already-activating"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         if (!_access.IsAllowed(args.User, ent))
         {
-            _popup.PopupClient("Officer authorization is required to start the detonation protocol.", ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-officer-activation-required"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         if (!Transform(ent).Anchored)
         {
-            _popup.PopupClient("The charge must be anchored before activation.", ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-anchor-before-activation"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         if (!HasAuthenticationDisk(ent))
         {
-            _popup.PopupClient("Insert a nuclear authentication disk before starting the detonation protocol.", ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-disk-before-activation"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
@@ -228,7 +228,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
             return;
 
         ent.Comp.Activating = true;
-        _popup.PopupClient("You begin entering the decoded nuclear activation sequence.", ent, args.User, PopupType.LargeCaution);
+        _popup.PopupClient(Loc.GetString("btp-nuke-popup-activation-started"), ent, args.User, PopupType.LargeCaution);
     }
 
     private void OnActivateDoAfter(Entity<BTPRMCNuclearChargeComponent> ent, ref BTPNukeActivateDoAfterEvent args)
@@ -241,7 +241,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         args.Handled = true;
         if (args.Cancelled)
         {
-            _popup.PopupClient("The nuclear activation sequence is interrupted.", ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-activation-interrupted"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
@@ -250,15 +250,15 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
 
         if (!Transform(ent).Anchored || !HasAuthenticationDisk(ent))
         {
-            _popup.PopupClient("The nuclear activation sequence fails its final authorization check.", ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("btp-nuke-popup-final-check-failed"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         ent.Comp.Armed = true;
         ent.Comp.DetonatesAt = _timing.CurTime + ent.Comp.DetonationDelay;
         var seconds = Math.Max(0, (int) ent.Comp.DetonationDelay.TotalSeconds);
-        Announce($"Nuclear Fission Explosive armed. Estimated detonation in {FormatRemaining(seconds)}. Evacuate the operational area.");
-        AnnounceXenos($"Верховна Королева попереджає: Винищувач-вуликів активовано. До вибуху лишається {FormatRemainingUkrainian(seconds)}.");
+        Announce(Loc.GetString("btp-nuke-armed", ("remaining", FormatRemaining(seconds))));
+        AnnounceXenos(Loc.GetString("btp-nuke-xeno-armed", ("remaining", FormatRemainingUkrainian(seconds))));
     }
 
     private void OnUnanchorAttempt(Entity<BTPRMCNuclearChargeComponent> ent, ref UnanchorAttemptEvent args)
@@ -267,7 +267,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
             return;
 
         args.Cancel();
-        _popup.PopupClient("The armed charge refuses to release its anchor locks.", ent, args.User, PopupType.LargeCaution);
+        _popup.PopupClient(Loc.GetString("btp-nuke-popup-armed-anchor-locked"), ent, args.User, PopupType.LargeCaution);
     }
 
     private void OnBeforeDamageChanged(Entity<BTPRMCNuclearChargeComponent> ent, ref BeforeDamageChangedEvent args)
@@ -326,8 +326,8 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         ent.Comp.Activating = false;
         StopWarningSiren(ent.Comp);
         StopWarheadTheme(ent.Comp);
-        Announce("Фізично неможливо синхронізовано активувати боєзапас у зв'язку зі значними фізичними пошкодженнями систем запуску.");
-        AnnounceXenos("Верховна Королева повідомляє: Винищувач-вуликів знешкоджено. Боєголовка більше не становить загрози для Вулика.");
+        Announce(Loc.GetString("btp-nuke-defused"));
+        AnnounceXenos(Loc.GetString("btp-nuke-xeno-defused"));
         QueueDel(ent);
     }
 
@@ -336,23 +336,36 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return $"{minutes} minute{(minutes == 1 ? "" : "s")}";
+            return Loc.GetString(minutes == 1 ? "btp-nuke-time-minute" : "btp-nuke-time-minutes", ("minutes", minutes));
         }
 
-        return $"{seconds} second{(seconds == 1 ? "" : "s")}";
+        return Loc.GetString(seconds == 1 ? "btp-nuke-time-second" : "btp-nuke-time-seconds", ("seconds", seconds));
     }
 
     private string FormatRemainingUkrainian(int seconds)
     {
-        return seconds switch
+        if (seconds >= 60)
         {
-            >= 300 => $"{(int) Math.Ceiling(seconds / 60f)} хвилин",
-            >= 120 => $"{(int) Math.Ceiling(seconds / 60f)} хвилини",
-            >= 60 => "1 хвилина",
-            30 => "30 секунд",
-            10 => "10 секунд",
-            _ => $"{seconds} секунд",
+            var minutes = (int) Math.Ceiling(seconds / 60f);
+            return Loc.GetString("btp-nuke-time-ukrainian", ("value", minutes), ("unit", GetUkrainianPlural(minutes, "btp-nuke-time-ukrainian-minute-one", "btp-nuke-time-ukrainian-minute-few", "btp-nuke-time-ukrainian-minute-many")));
+        }
+
+        return Loc.GetString("btp-nuke-time-ukrainian", ("value", seconds), ("unit", GetUkrainianPlural(seconds, "btp-nuke-time-ukrainian-second-one", "btp-nuke-time-ukrainian-second-few", "btp-nuke-time-ukrainian-second-many")));
+    }
+
+    private string GetUkrainianPlural(int value, string oneKey, string fewKey, string manyKey)
+    {
+        var mod100 = value % 100;
+        if (mod100 is >= 11 and <= 14)
+            return Loc.GetString(manyKey);
+
+        var key = (value % 10) switch
+        {
+            1 => oneKey,
+            >= 2 and <= 4 => fewKey,
+            _ => manyKey,
         };
+        return Loc.GetString(key);
     }
 
     private void StartDetonation(EntityUid uid, BTPRMCNuclearChargeComponent charge, TransformComponent xform)
@@ -361,8 +374,8 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         charge.NukeMapAt = _timing.CurTime + charge.MapKillDelay;
 
         var coordinates = _transform.GetMapCoordinates(uid, xform);
-        Announce("Nuclear Fission Explosive detonation detected. Strategic area denial protocol executing.");
-        AnnounceXenos("Верховна Королева попереджає: Винищувач-вуликів детонував. Вулик має покинути приречену зону.");
+        Announce(Loc.GetString("btp-nuke-detonated"));
+        AnnounceXenos(Loc.GetString("btp-nuke-xeno-detonated"));
 
         StopWarningSiren(charge);
         StopWarheadTheme(charge);

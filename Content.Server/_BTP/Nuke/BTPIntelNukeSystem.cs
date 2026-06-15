@@ -73,8 +73,8 @@ public sealed class BTPIntelNukeSystem : EntitySystem
             tree.Comp.Tree.TotalEarned >= comp.RequiredIntelPoints)
         {
             comp.Stage = BTPIntelNukeStage.WaitingForTowers;
-            Announce("Nuclear ordnance authorization fragments recovered from colony intelligence. Maintain control of two communication towers to begin decryption.");
-            AnnounceXenos("Верховна Королева попереджає: інкубатори розпочали формування Винищувача-вуликів. Заважайте його формуванню: знищте або захопіть їхні енергетичні вежі.");
+            Announce(Loc.GetString("btp-nuke-intel-fragments-recovered"));
+            AnnounceXenos(Loc.GetString("btp-nuke-xeno-intel-fragments-recovered"));
         }
 
         if (comp.Stage is not (BTPIntelNukeStage.WaitingForTowers or BTPIntelNukeStage.Decoding))
@@ -87,8 +87,8 @@ public sealed class BTPIntelNukeSystem : EntitySystem
             {
                 comp.Stage = BTPIntelNukeStage.WaitingForTowers;
                 var percent = GetDecodePercent(comp);
-                Announce($"Communication tower control interrupted. Nuclear ordnance decryption paused at {percent}%.");
-                AnnounceXenos($"Зв'язок інкубаторів порушено. Формування Винищувача-вуликів зупинено на {percent}%. Поверніть вежі під владу Вулика.");
+                Announce(Loc.GetString("btp-nuke-decryption-paused", ("percent", percent)));
+                AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-paused", ("percent", percent)));
             }
 
             AnnounceTowerStatusIfNeeded(comp, activeTowers, time);
@@ -99,8 +99,8 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         {
             comp.Stage = BTPIntelNukeStage.Decoding;
             var minutes = Math.Max(1, (int) Math.Ceiling((comp.DecodeDuration - comp.DecodeProgress).TotalMinutes));
-            Announce($"Two friendly communication towers linked. Nuclear ordnance decryption resumed. Estimated completion in {minutes} minutes.");
-            AnnounceXenos($"Інкубатори поєднали дві енергетичні вежі. Формування Винищувача-вуликів відновлено. До завершення приблизно {FormatRemainingUkrainian(minutes * 60)}.");
+            Announce(Loc.GetString("btp-nuke-decryption-resumed", ("remaining", FormatRemaining(minutes * 60))));
+            AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-resumed", ("remaining", FormatRemainingUkrainian(minutes * 60))));
         }
 
         comp.DecodeProgress += elapsed;
@@ -138,8 +138,8 @@ public sealed class BTPIntelNukeSystem : EntitySystem
 
         comp.LastReportedActiveTowers = activeTowers;
         comp.NextTowerStatusAt = time + TimeSpan.FromMinutes(1);
-        Announce($"Nuclear ordnance decryption waiting for tower link: {activeTowers}/{comp.RequiredTowers} friendly communication towers active.");
-        AnnounceXenos($"Формування Винищувача-вуликів очікує живлення через вежі: {activeTowers}/{comp.RequiredTowers} енергетичних веж під контролем ворога. Зірвіть їхній контроль.");
+        Announce(Loc.GetString("btp-nuke-decryption-waiting-towers", ("active", activeTowers), ("required", comp.RequiredTowers)));
+        AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-waiting-towers", ("active", activeTowers), ("required", comp.RequiredTowers)));
     }
 
     private void AnnounceDecodeProgress(BTPIntelNukeObjectiveComponent comp)
@@ -153,8 +153,9 @@ public sealed class BTPIntelNukeSystem : EntitySystem
                 continue;
             }
 
-            Announce($"Nuclear ordnance decryption in progress. Estimated completion in {FormatRemaining(threshold)} ({GetDecodePercent(comp)}%).");
-            AnnounceXenos($"Формування Винищувача-вуликів триває. До завершення лишається {FormatRemainingUkrainian(threshold)} ({GetDecodePercent(comp)}%).");
+            var percent = GetDecodePercent(comp);
+            Announce(Loc.GetString("btp-nuke-decryption-progress", ("remaining", FormatRemaining(threshold)), ("percent", percent)));
+            AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-progress", ("remaining", FormatRemainingUkrainian(threshold)), ("percent", percent)));
             return;
         }
     }
@@ -181,13 +182,13 @@ public sealed class BTPIntelNukeSystem : EntitySystem
                 Dirty(tree);
                 _intel.UpdateTree(tree);
 
-                Announce("Nuclear ordnance decryption complete. Nuclear Fission Explosive purchase has been authorized at the asset authorization console.");
-                AnnounceXenos("Формування Винищувача-вуликів завершено. Ворог може доставити заряд через свою логістику. Знищте боєголовку до активації.");
+                Announce(Loc.GetString("btp-nuke-decryption-complete"));
+                AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-complete"));
                 return;
             }
         }
 
-        Announce("Nuclear ordnance decryption complete, but no matching Nuclear Fission Explosive technology option was found for authorization.");
+        Announce(Loc.GetString("btp-nuke-decryption-complete-missing-option"));
     }
 
     private bool DeliversCharge(TechOption option, EntProtoId chargePrototype)
@@ -217,10 +218,10 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return $"{minutes} minute{(minutes == 1 ? "" : "s")}";
+            return Loc.GetString(minutes == 1 ? "btp-nuke-time-minute" : "btp-nuke-time-minutes", ("minutes", minutes));
         }
 
-        return $"{seconds} second{(seconds == 1 ? "" : "s")}";
+        return Loc.GetString(seconds == 1 ? "btp-nuke-time-second" : "btp-nuke-time-seconds", ("seconds", seconds));
     }
 
     private string FormatRemainingUkrainian(int seconds)
@@ -228,24 +229,25 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return $"{minutes} {GetUkrainianPlural(minutes, "хвилина", "хвилини", "хвилин")}";
+            return Loc.GetString("btp-nuke-time-ukrainian", ("value", minutes), ("unit", GetUkrainianPlural(minutes, "btp-nuke-time-ukrainian-minute-one", "btp-nuke-time-ukrainian-minute-few", "btp-nuke-time-ukrainian-minute-many")));
         }
 
-        return $"{seconds} {GetUkrainianPlural(seconds, "секунда", "секунди", "секунд")}";
+        return Loc.GetString("btp-nuke-time-ukrainian", ("value", seconds), ("unit", GetUkrainianPlural(seconds, "btp-nuke-time-ukrainian-second-one", "btp-nuke-time-ukrainian-second-few", "btp-nuke-time-ukrainian-second-many")));
     }
 
-    private string GetUkrainianPlural(int value, string one, string few, string many)
+    private string GetUkrainianPlural(int value, string oneKey, string fewKey, string manyKey)
     {
         var mod100 = value % 100;
         if (mod100 is >= 11 and <= 14)
-            return many;
+            return Loc.GetString(manyKey);
 
-        return (value % 10) switch
+        var key = (value % 10) switch
         {
-            1 => one,
-            >= 2 and <= 4 => few,
-            _ => many,
+            1 => oneKey,
+            >= 2 and <= 4 => fewKey,
+            _ => manyKey,
         };
+        return Loc.GetString(key);
     }
 
     private void Announce(string message)
