@@ -26,8 +26,8 @@ public sealed class RMCNukeSystem : EntitySystem
     [Dependency] private readonly SensorTowerSystem _sensorTower = default!;
     [Dependency] private readonly RMCPowerSystem _power = default!;
 
-    // Strategic nuclear cleanup must kill even extreme health pools before fallback deletion runs.
-    private readonly DamageSpecifier _damage = new() { DamageDict = { ["Blunt"] = 1e10, ["Heat"] = 1e10 } };
+    // Стратегічне ядерне очищення має знищити навіть сутності з надзвичайно великим запасом здоров'я до запуску резервного видалення.
+    private readonly DamageSpecifier _damage = new() { DamageDict = { ["Blunt"] = 1e5, ["Heat"] = 1e5 } };
     private readonly HashSet<EntityUid> _gridContents = new();
     private EntityQuery<RMCRepairableComponent> _repairable;
 

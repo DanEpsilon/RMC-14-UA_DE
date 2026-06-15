@@ -6,130 +6,130 @@ namespace Content.Server._BTP.Nuke;
 public sealed partial class BTPRMCNuclearChargeComponent : Component
 {
     /// <summary>
-    /// Item slot used to hold the nuclear authentication disk.
+    /// Слот предмета, що використовується для зберігання диска ядерної автентифікації.
     /// </summary>
     [DataField]
     public string DiskSlotId = "btp-rmc-nuke-disk";
 
     /// <summary>
-    /// Time required for an authorized user to complete the activation sequence.
+    /// Час, необхідний авторизованому користувачеві для завершення послідовності активації.
     /// </summary>
     [DataField]
     public TimeSpan ActivationDelay = TimeSpan.FromSeconds(12);
 
     /// <summary>
-    /// Countdown duration after the charge is armed.
+    /// Тривалість зворотного відліку після активації заряду.
     /// </summary>
     [DataField]
     public TimeSpan DetonationDelay = TimeSpan.FromMinutes(5);
 
     /// <summary>
-    /// Delay between the visual detonation starting and the map-wide nuclear cleanup.
+    /// Затримка між початком візуальної детонації та ядерним очищенням усієї карти.
     /// </summary>
     [DataField]
     public TimeSpan MapKillDelay = TimeSpan.FromSeconds(1);
 
     /// <summary>
-    /// Looping siren played on the affected map after the three-minute warning.
+    /// Сирена зациклювалася на ураженій карті після трихвилинного попередження.
     /// </summary>
     [DataField]
     public SoundSpecifier ThirtySecondWarningSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/30sec_nuke_warning.ogg", AudioParams.Default.WithVolume(-1).WithLoop(true));
 
     /// <summary>
-    /// Global music cue started shortly before detonation.
+    /// Глобальна музична репліка заграла незадовго до детонації.
     /// </summary>
     [DataField]
     public SoundSpecifier WarheadThemeSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/warhead_theme.ogg", AudioParams.Default.WithVolume(0));
 
     /// <summary>
-    /// Explosion sound heard by entities on the affected map.
+    /// Звук вибуху, чутний об'єктами на ураженій карті.
     /// </summary>
     [DataField]
     public SoundSpecifier MapExplosionSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/Nuke_explosion_map_sound.ogg", AudioParams.Default.WithVolume(2));
 
     /// <summary>
-    /// Flyby explosion sound heard by entities away from the affected map.
+    /// Звук вибуху, що пролітає, чують сутності, що знаходяться далеко від ураженої карти.
     /// </summary>
     [DataField]
     public SoundSpecifier FlybyExplosionSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/Alamo_Flyby_Nukesoundeffect.ogg", AudioParams.Default.WithVolume(-1));
 
     /// <summary>
-    /// Explosion prototype used for the visual blast wave.
+    /// Прототип вибуху, використаний для візуальної вибухової хвилі.
     /// </summary>
     [DataField]
     public string ExplosionType = "BTPNuke";
 
     /// <summary>
-    /// Total visual explosion intensity.
+    /// Загальна візуальна інтенсивність вибуху.
     /// </summary>
     [DataField]
     public float ExplosionTotalIntensity = 80000000;
 
     /// <summary>
-    /// Visual explosion falloff slope.
+    /// Візуальний вибух, що призводить до falloff.
     /// </summary>
     [DataField]
     public float ExplosionSlope = 25;
 
     /// <summary>
-    /// Maximum visual explosion intensity per tile.
+    /// Максимальна інтенсивність візуального вибуху на плитку.
     /// </summary>
     [DataField]
     public float ExplosionMaxTileIntensity = 400;
 
     /// <summary>
-    /// Damage threshold at which physical damage defuses and destroys the charge.
+    /// Поріг пошкодження, при якому фізична шкода знешкоджує та знищує заряд.
     /// </summary>
     [DataField]
     public float DisableDamage = 350;
 
     /// <summary>
-    /// Whether an activation do-after is currently in progress.
+    /// Чи виконується наразі операція активації після її завершення.
     /// </summary>
     public bool Activating;
 
     /// <summary>
-    /// Whether the charge has been armed and is counting down.
+    /// Чи було заряд активовано та чи триває зворотний відлік.
     /// </summary>
     public bool Armed;
 
     /// <summary>
-    /// Whether the detonation sequence has already started.
+    /// Чи вже розпочалася послідовність детонації.
     /// </summary>
     public bool Detonated;
 
     /// <summary>
-    /// Whether the charge was destroyed or defused before detonation.
+    /// Чи був заряд знищений або знешкоджений перед детонацією.
     /// </summary>
     public bool Destroyed;
 
     /// <summary>
-    /// Whether the final music cue has already started.
+    /// Чи вже почалася фінальна музична підказка.
     /// </summary>
     public bool ThemeStarted;
 
     /// <summary>
-    /// Game time at which the charge detonates.
+    /// Час гри, в який детонує заряд.
     /// </summary>
     public TimeSpan DetonatesAt;
 
     /// <summary>
-    /// Game time at which the map-wide nuclear cleanup should run.
+    /// Час гри, коли має розпочатися ядерне очищення карти.
     /// </summary>
     public TimeSpan NukeMapAt;
 
     /// <summary>
-    /// Audio stream entity for the looping warning siren.
+    /// Аудіопотокова сутність для зацикленої попереджувальної сирени.
     /// </summary>
     public EntityUid? WarningSirenStream;
 
     /// <summary>
-    /// Audio stream entity for the final music cue.
+    /// Аудіопоток для останньої музичної репліки.
     /// </summary>
     public EntityUid? WarheadThemeStream;
 
     /// <summary>
-    /// Countdown thresholds that have already produced an announcement.
+    /// Пороги зворотного відліку, які вже призвели до оголошення.
     /// </summary>
     public readonly HashSet<int> AnnouncedAtSeconds = new();
 }
