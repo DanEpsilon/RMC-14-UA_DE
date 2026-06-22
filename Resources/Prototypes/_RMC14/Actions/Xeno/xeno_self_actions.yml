@@ -210,8 +210,8 @@
 - type: entity
   id: ActionXenoPsychicWhisper
   parent: ActionXenoBase
-  name: Psychic Whisper
-  description: Whisper a psychic message to a nearby mind.
+  name: Психічний Шепіт
+  description: Передати психічне повідомлення найближчому розуму.
   components:
   - type: Action
     itemIconStyle: NoItem
@@ -233,8 +233,8 @@
 - type: entity
   id: ActionXenoPsychicRadiance
   parent: ActionXenoBase
-  name: Psychic Radiance (100)
-  description: Radiate a psychic message to nearby minds.
+  name: Психічний Резонанс (100)
+  description: Резонувати психічним повідомленням до найближчих розумамів.
   components:
   - type: Action
     itemIconStyle: NoItem
@@ -249,8 +249,8 @@
 - type: entity
   id: ActionXenoGiveOrder
   parent: ActionXenoBase
-  name: Give Order (100)
-  description: Send a psychic order to the xenonid you are watching.
+  name: Віддати Наказ (100)
+  description: Надіслати психічний наказ тому, за ким ви спостерігаєте.
   components:
   - type: Action
     itemIconStyle: NoItem
@@ -428,7 +428,7 @@
   id: ActionXenoDodge
   parent: ActionXenoBase
   name: Ухилення
-  description: Gain a speed boost for 7 seconds and move through allies and enemies unimpeded. You dodge every 3rd projectile that could hit you [color=red]excluding sniper bullets and rockets[/color]. Can be toggled off early to stop dodging, cooldown is equal to twice the duration used.
+  description: Отримати прискорення на 7 секунд та вільно проходити крізь союзників і ворогів. Ви ухиляєтесь від кожного третього снаряда [color=red]окрім снайперських куль та ракет[/color]. Можна вимкнути достроково, щоб припинити ухилення — перезарядка дорівнює подвоєному часу використання.
   components:
   - type: Action
     itemIconStyle: NoItem

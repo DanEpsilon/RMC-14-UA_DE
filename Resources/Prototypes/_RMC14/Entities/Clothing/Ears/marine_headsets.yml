@@ -9,8 +9,10 @@
     trackerModes:
     - SquadLeader
     - FireteamLeader
-    - CommandingOfficer # Sich
-    - ExecutiveOfficer # Sich
+    # Mriya start. Бо чому ні?
+    - CommandingOfficer
+    - ExecutiveOfficer
+    # Mriya end
     - SeniorEnlistedAdvisor
     - PrimaryLandingZone
   - type: GrantTacMapAlert
@@ -53,12 +55,15 @@
     - ExecutiveOfficer
     - SquadLeader
     - FireteamLeader
-    - AuxiliarySupportOfficer # Sich
-    - StaffOfficer # Sich
-    - ChiefMilitaryPolice # Sich
-    - ChiefEngineer # Sich
-    - ChiefMedicalOfficer # Sich
-    - Quartermaster # Sich
+    # Mriya start
+    - AuxiliarySupportOfficer
+    - StaffOfficer
+    - ChiefMilitaryPolice
+    - ChiefEngineer
+    - ChiefMedicalOfficer
+    - Quartermaster
+    - SeniorEnlistedAdvisor
+    # Mriya end
     - PrimaryLandingZone
 
 - type: entity
@@ -136,12 +141,15 @@
     - ExecutiveOfficer
     - SquadLeader
     - FireteamLeader
-    - AuxiliarySupportOfficer # Sich
-    - StaffOfficer # Sich
-    - ChiefMilitaryPolice # Sich
-    - ChiefEngineer # Sich
-    - ChiefMedicalOfficer # Sich
-    - Quartermaster # Sich
+    # Mriya start
+    - AuxiliarySupportOfficer
+    - StaffOfficer
+    - ChiefMilitaryPolice
+    - ChiefEngineer
+    - ChiefMedicalOfficer
+    - Quartermaster
+    - SeniorEnlistedAdvisor
+    # Mriya end
     - PrimaryLandingZone
 
 - type: entity
@@ -219,12 +227,15 @@
     - ExecutiveOfficer
     - SquadLeader
     - FireteamLeader
-    - AuxiliarySupportOfficer # Sich
-    - StaffOfficer # Sich
-    - ChiefMilitaryPolice # Sich
-    - ChiefEngineer # Sich
-    - ChiefMedicalOfficer # Sich
-    - Quartermaster # Sich
+    # Mriya start
+    - AuxiliarySupportOfficer
+    - StaffOfficer
+    - ChiefMilitaryPolice
+    - ChiefEngineer
+    - ChiefMedicalOfficer
+    - Quartermaster
+    - SeniorEnlistedAdvisor
+    # Mriya end
     - PrimaryLandingZone
 
 - type: entity
@@ -302,12 +313,15 @@
     - ExecutiveOfficer
     - SquadLeader
     - FireteamLeader
-    - AuxiliarySupportOfficer # Sich
-    - StaffOfficer # Sich
-    - ChiefMilitaryPolice # Sich
-    - ChiefEngineer # Sich
-    - ChiefMedicalOfficer # Sich
-    - Quartermaster # Sich
+    # Mriya start
+    - AuxiliarySupportOfficer
+    - StaffOfficer
+    - ChiefMilitaryPolice
+    - ChiefEngineer
+    - ChiefMedicalOfficer
+    - Quartermaster
+    - SeniorEnlistedAdvisor
+    # Mriya end
     - PrimaryLandingZone
 
 - type: entity
@@ -391,6 +405,7 @@
     - ChiefEngineer
     - ChiefMedicalOfficer
     - Quartermaster
+    - SeniorEnlistedAdvisor
     - PrimaryLandingZone
 
 - type: entity
@@ -420,6 +435,7 @@
     - ChiefEngineer
     - ChiefMedicalOfficer
     - Quartermaster
+    - SeniorEnlistedAdvisor
     # Mriya end
     - PrimaryLandingZone
 
@@ -490,6 +506,7 @@
     - ChiefEngineer
     - ChiefMedicalOfficer
     - Quartermaster
+    - SeniorEnlistedAdvisor
     - PrimaryLandingZone
 
 - type: entity
@@ -519,6 +536,7 @@
     - ChiefEngineer
     - ChiefMedicalOfficer
     - Quartermaster
+    - SeniorEnlistedAdvisor
     # Mriya end
     - PrimaryLandingZone
 

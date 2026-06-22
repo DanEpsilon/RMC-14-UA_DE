@@ -248,6 +248,9 @@
         points: 5
       - id: CMPillCanisterKelotane
         points: 5
+      - id: RMCPillCanisterIron # Mriya. Залізо Синтам
+        points: 5
+        recommended: true
       # /obj/item/storage/pill_bottle/peridaxon - 5 Points
       # /obj/item/storage/pill_bottle/tramadol - 5 Points
       - id: CMBicaridineAutoInjector
