@@ -7,9 +7,9 @@ using Content.Shared.GameTicking;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
-namespace Content.Server._BTP.Nuke;
+namespace Content.Server._Sich.Nuke;
 
-public sealed class BTPIntelNukeSystem : EntitySystem
+public sealed class MriyaIntelNukeSystem : EntitySystem
 {
     [Dependency] private readonly IntelSystem _intel = default!;
     [Dependency] private readonly SharedMarineAnnounceSystem _marineAnnounce = default!;
@@ -31,10 +31,10 @@ public sealed class BTPIntelNukeSystem : EntitySystem
     {
         _nextUpdate = default;
 
-        var query = EntityQueryEnumerator<BTPIntelNukeObjectiveComponent>();
+        var query = EntityQueryEnumerator<MriyaIntelNukeObjectiveComponent>();
         while (query.MoveNext(out var uid, out _))
         {
-            RemCompDeferred<BTPIntelNukeObjectiveComponent>(uid);
+            RemCompDeferred<MriyaIntelNukeObjectiveComponent>(uid);
         }
     }
 
@@ -51,14 +51,14 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         var query = EntityQueryEnumerator<IntelTechTreeComponent>();
         while (query.MoveNext(out var uid, out var tree))
         {
-            var objective = EnsureComp<BTPIntelNukeObjectiveComponent>(uid);
+            var objective = EnsureComp<MriyaIntelNukeObjectiveComponent>(uid);
             ProcessObjective((uid, objective), (uid, tree), time);
             break;
         }
     }
 
     private void ProcessObjective(
-        Entity<BTPIntelNukeObjectiveComponent> objective,
+        Entity<MriyaIntelNukeObjectiveComponent> objective,
         Entity<IntelTechTreeComponent> tree,
         TimeSpan time)
     {
@@ -69,38 +69,38 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         var elapsed = time - comp.LastUpdatedAt;
         comp.LastUpdatedAt = time;
 
-        if (comp.Stage == BTPIntelNukeStage.WaitingForIntel &&
+        if (comp.Stage == MriyaIntelNukeStage.WaitingForIntel &&
             tree.Comp.Tree.TotalEarned >= comp.RequiredIntelPoints)
         {
-            comp.Stage = BTPIntelNukeStage.WaitingForTowers;
-            Announce(Loc.GetString("btp-nuke-intel-fragments-recovered"));
-            AnnounceXenos(Loc.GetString("btp-nuke-xeno-intel-fragments-recovered"));
+            comp.Stage = MriyaIntelNukeStage.WaitingForTowers;
+            Announce(Loc.GetString("mriya-nuke-intel-fragments-recovered"));
+            AnnounceXenos(Loc.GetString("mriya-nuke-xeno-intel-fragments-recovered"));
         }
 
-        if (comp.Stage is not (BTPIntelNukeStage.WaitingForTowers or BTPIntelNukeStage.Decoding))
+        if (comp.Stage is not (MriyaIntelNukeStage.WaitingForTowers or MriyaIntelNukeStage.Decoding))
             return;
 
         var activeTowers = CountActiveMarineTowers();
         if (activeTowers < comp.RequiredTowers)
         {
-            if (comp.Stage == BTPIntelNukeStage.Decoding)
+            if (comp.Stage == MriyaIntelNukeStage.Decoding)
             {
-                comp.Stage = BTPIntelNukeStage.WaitingForTowers;
+                comp.Stage = MriyaIntelNukeStage.WaitingForTowers;
                 var percent = GetDecodePercent(comp);
-                Announce(Loc.GetString("btp-nuke-decryption-paused", ("percent", percent)));
-                AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-paused", ("percent", percent)));
+                Announce(Loc.GetString("mriya-nuke-decryption-paused", ("percent", percent)));
+                AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-paused", ("percent", percent)));
             }
 
             AnnounceTowerStatusIfNeeded(comp, activeTowers, time);
             return;
         }
 
-        if (comp.Stage == BTPIntelNukeStage.WaitingForTowers)
+        if (comp.Stage == MriyaIntelNukeStage.WaitingForTowers)
         {
-            comp.Stage = BTPIntelNukeStage.Decoding;
+            comp.Stage = MriyaIntelNukeStage.Decoding;
             var minutes = Math.Max(1, (int) Math.Ceiling((comp.DecodeDuration - comp.DecodeProgress).TotalMinutes));
-            Announce(Loc.GetString("btp-nuke-decryption-resumed", ("remaining", FormatRemaining(minutes * 60))));
-            AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-resumed", ("remaining", FormatRemainingUkrainian(minutes * 60))));
+            Announce(Loc.GetString("mriya-nuke-decryption-resumed", ("remaining", FormatRemaining(minutes * 60))));
+            AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-resumed", ("remaining", FormatRemainingUkrainian(minutes * 60))));
         }
 
         comp.DecodeProgress += elapsed;
@@ -128,7 +128,7 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         return count;
     }
 
-    private void AnnounceTowerStatusIfNeeded(BTPIntelNukeObjectiveComponent comp, int activeTowers, TimeSpan time)
+    private void AnnounceTowerStatusIfNeeded(MriyaIntelNukeObjectiveComponent comp, int activeTowers, TimeSpan time)
     {
         if (comp.LastReportedActiveTowers == activeTowers &&
             time < comp.NextTowerStatusAt)
@@ -138,11 +138,11 @@ public sealed class BTPIntelNukeSystem : EntitySystem
 
         comp.LastReportedActiveTowers = activeTowers;
         comp.NextTowerStatusAt = time + TimeSpan.FromMinutes(1);
-        Announce(Loc.GetString("btp-nuke-decryption-waiting-towers", ("active", activeTowers), ("required", comp.RequiredTowers)));
-        AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-waiting-towers", ("active", activeTowers), ("required", comp.RequiredTowers)));
+        Announce(Loc.GetString("mriya-nuke-decryption-waiting-towers", ("active", activeTowers), ("required", comp.RequiredTowers)));
+        AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-waiting-towers", ("active", activeTowers), ("required", comp.RequiredTowers)));
     }
 
-    private void AnnounceDecodeProgress(BTPIntelNukeObjectiveComponent comp)
+    private void AnnounceDecodeProgress(MriyaIntelNukeObjectiveComponent comp)
     {
         var remaining = (int) Math.Ceiling((comp.DecodeDuration - comp.DecodeProgress).TotalSeconds);
         foreach (var threshold in DecodeAnnouncementThresholds)
@@ -154,18 +154,18 @@ public sealed class BTPIntelNukeSystem : EntitySystem
             }
 
             var percent = GetDecodePercent(comp);
-            Announce(Loc.GetString("btp-nuke-decryption-progress", ("remaining", FormatRemaining(threshold)), ("percent", percent)));
-            AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-progress", ("remaining", FormatRemainingUkrainian(threshold)), ("percent", percent)));
+            Announce(Loc.GetString("mriya-nuke-decryption-progress", ("remaining", FormatRemaining(threshold)), ("percent", percent)));
+            AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-progress", ("remaining", FormatRemainingUkrainian(threshold)), ("percent", percent)));
             return;
         }
     }
 
     private void AuthorizeChargePurchase(
-        Entity<BTPIntelNukeObjectiveComponent> objective,
+        Entity<MriyaIntelNukeObjectiveComponent> objective,
         Entity<IntelTechTreeComponent> tree)
     {
         var comp = objective.Comp;
-        if (comp.Stage == BTPIntelNukeStage.ChargeAuthorized)
+        if (comp.Stage == MriyaIntelNukeStage.ChargeAuthorized)
             return;
 
         for (var tierIndex = 0; tierIndex < tree.Comp.Tree.Options.Count; tierIndex++)
@@ -178,17 +178,17 @@ public sealed class BTPIntelNukeSystem : EntitySystem
                     continue;
 
                 tier[optionIndex] = option with { TimeLock = TimeSpan.Zero };
-                comp.Stage = BTPIntelNukeStage.ChargeAuthorized;
+                comp.Stage = MriyaIntelNukeStage.ChargeAuthorized;
                 Dirty(tree);
                 _intel.UpdateTree(tree);
 
-                Announce(Loc.GetString("btp-nuke-decryption-complete"));
-                AnnounceXenos(Loc.GetString("btp-nuke-xeno-decryption-complete"));
+                Announce(Loc.GetString("mriya-nuke-decryption-complete"));
+                AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-complete"));
                 return;
             }
         }
 
-        Announce(Loc.GetString("btp-nuke-decryption-complete-missing-option"));
+        Announce(Loc.GetString("mriya-nuke-decryption-complete-missing-option"));
     }
 
     private bool DeliversCharge(TechOption option, EntProtoId chargePrototype)
@@ -205,7 +205,7 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         return false;
     }
 
-    private int GetDecodePercent(BTPIntelNukeObjectiveComponent comp)
+    private int GetDecodePercent(MriyaIntelNukeObjectiveComponent comp)
     {
         if (comp.DecodeDuration <= TimeSpan.Zero)
             return 100;
@@ -218,10 +218,10 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return Loc.GetString(minutes == 1 ? "btp-nuke-time-minute" : "btp-nuke-time-minutes", ("minutes", minutes));
+            return Loc.GetString(minutes == 1 ? "mriya-nuke-time-minute" : "mriya-nuke-time-minutes", ("minutes", minutes));
         }
 
-        return Loc.GetString(seconds == 1 ? "btp-nuke-time-second" : "btp-nuke-time-seconds", ("seconds", seconds));
+        return Loc.GetString(seconds == 1 ? "mriya-nuke-time-second" : "mriya-nuke-time-seconds", ("seconds", seconds));
     }
 
     private string FormatRemainingUkrainian(int seconds)
@@ -229,10 +229,10 @@ public sealed class BTPIntelNukeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return Loc.GetString("btp-nuke-time-ukrainian", ("value", minutes), ("unit", GetUkrainianPlural(minutes, "btp-nuke-time-ukrainian-minute-one", "btp-nuke-time-ukrainian-minute-few", "btp-nuke-time-ukrainian-minute-many")));
+            return Loc.GetString("mriya-nuke-time-ukrainian", ("value", minutes), ("unit", GetUkrainianPlural(minutes, "mriya-nuke-time-ukrainian-minute-one", "mriya-nuke-time-ukrainian-minute-few", "mriya-nuke-time-ukrainian-minute-many")));
         }
 
-        return Loc.GetString("btp-nuke-time-ukrainian", ("value", seconds), ("unit", GetUkrainianPlural(seconds, "btp-nuke-time-ukrainian-second-one", "btp-nuke-time-ukrainian-second-few", "btp-nuke-time-ukrainian-second-many")));
+        return Loc.GetString("mriya-nuke-time-ukrainian", ("value", seconds), ("unit", GetUkrainianPlural(seconds, "mriya-nuke-time-ukrainian-second-one", "mriya-nuke-time-ukrainian-second-few", "mriya-nuke-time-ukrainian-second-many")));
     }
 
     private string GetUkrainianPlural(int value, string oneKey, string fewKey, string manyKey)

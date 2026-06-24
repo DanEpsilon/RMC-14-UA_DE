@@ -445,16 +445,16 @@
           icon:
             sprite: _RMC14/Interface/map_blips.rsi # Mriya. Іконка мапи, бо прикольна
             state: aegisob
-        - name: btp-intel-tech-nuclear-charge-name
-          description: btp-intel-tech-nuclear-charge-description
+        - name: mriya-intel-tech-nuclear-charge-name
+          description: mriya-intel-tech-nuclear-charge-description
           cost: 10
           timeLock: 9999m
           events:
           - !type:TechLogisticsDeliveryEvent
-            object: BTPRMCNuclearCharge
+            object: MriyaRMCNuclearCharge
           - !type:TechAnnounceEvent
             author: rmc-intel-tech-announcement-special-assets-author
-            message: btp-intel-tech-announcement-nuclear-charge
+            message: mriya-intel-tech-announcement-nuclear-charge
           icon:
             sprite: _RMC14/Structures/Machines/Nuke.rsi
             state: nuke

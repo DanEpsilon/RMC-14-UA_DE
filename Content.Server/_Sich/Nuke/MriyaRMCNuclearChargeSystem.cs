@@ -1,9 +1,8 @@
-using Content.Server._RMC14.Nuke;
 using Content.Server._RMC14.Announce;
 using Content.Server._RMC14.Explosion;
 using Content.Server.RoundEnd;
 using Content.Shared.Access.Systems;
-using Content.Shared._BTP.Nuke;
+using Content.Shared._Sich.Nuke;
 using Content.Shared._RMC14.Marines.Announce;
 using Content.Shared._RMC14.Rules;
 using Content.Shared._RMC14.Xenonids.Projectile;
@@ -23,9 +22,9 @@ using Robust.Shared.Map;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
 
-namespace Content.Server._BTP.Nuke;
+namespace Content.Server._Sich.Nuke;
 
-public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
+public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
 {
     [Dependency] private readonly AccessReaderSystem _access = default!;
     [Dependency] private readonly AudioSystem _audio = default!;
@@ -34,7 +33,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
     [Dependency] private readonly SharedMarineAnnounceSystem _marineAnnounce = default!;
     [Dependency] private readonly SharedPopupSystem _popup = default!;
     [Dependency] private readonly RMCExplosionSystem _rmcExplosion = default!;
-    [Dependency] private readonly RMCNukeSystem _rmcNuke = default!;
+    [Dependency] private readonly MriyaRMCNukeSystem _mriyaNuke = default!;
     [Dependency] private readonly RoundEndSystem _roundEnd = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
@@ -47,23 +46,23 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, ExaminedEvent>(OnExamined);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsertAttempt);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, ItemSlotEjectAttemptEvent>(OnItemSlotEjectAttempt);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, InteractHandEvent>(OnInteractHand);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, BTPNukeActivateDoAfterEvent>(OnActivateDoAfter);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, UnanchorAttemptEvent>(OnUnanchorAttempt);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, BeforeDamageChangedEvent>(OnBeforeDamageChanged);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, DamageChangedEvent>(OnDamageChanged);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, DestructionEventArgs>(OnDestroyed);
-        SubscribeLocalEvent<BTPRMCNuclearChargeComponent, EntityTerminatingEvent>(OnTerminating);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, ExaminedEvent>(OnExamined);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsertAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, ItemSlotEjectAttemptEvent>(OnItemSlotEjectAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, InteractHandEvent>(OnInteractHand);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, MriyaNukeActivateDoAfterEvent>(OnActivateDoAfter);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, UnanchorAttemptEvent>(OnUnanchorAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, BeforeDamageChangedEvent>(OnBeforeDamageChanged);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, DamageChangedEvent>(OnDamageChanged);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, DestructionEventArgs>(OnDestroyed);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, EntityTerminatingEvent>(OnTerminating);
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
 
-        var query = EntityQueryEnumerator<BTPRMCNuclearChargeComponent, TransformComponent>();
+        var query = EntityQueryEnumerator<MriyaRMCNuclearChargeComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out var charge, out var xform))
         {
             if (charge.Destroyed)
@@ -77,7 +76,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
                 if (_timing.CurTime < charge.NukeMapAt)
                     continue;
 
-                _rmcNuke.NukeMap(xform.MapID);
+                _mriyaNuke.NukeMap(xform.MapID);
                 EndRoundMinorMarineVictory();
                 QueueDel(uid);
                 continue;
@@ -95,8 +94,8 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
                     continue;
                 }
 
-                Announce(Loc.GetString("btp-nuke-detonation-countdown", ("remaining", FormatRemaining(threshold))));
-                AnnounceXenos(Loc.GetString("btp-nuke-xeno-detonation-countdown", ("remaining", FormatRemainingUkrainian(threshold))));
+                Announce(Loc.GetString("mriya-nuke-detonation-countdown", ("remaining", FormatRemaining(threshold))));
+                AnnounceXenos(Loc.GetString("mriya-nuke-xeno-detonation-countdown", ("remaining", FormatRemainingUkrainian(threshold))));
 
                 if (threshold == 180)
                     StartWarningSiren(charge, xform.MapID);
@@ -115,28 +114,28 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         }
     }
 
-    private void OnExamined(Entity<BTPRMCNuclearChargeComponent> ent, ref ExaminedEvent args)
+    private void OnExamined(Entity<MriyaRMCNuclearChargeComponent> ent, ref ExaminedEvent args)
     {
         if (ent.Comp.Armed)
         {
             var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
-            args.PushMarkup(Loc.GetString("btp-nuke-examine-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))));
+            args.PushMarkup(Loc.GetString("mriya-nuke-examine-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))));
             return;
         }
 
         if (ent.Comp.Activating)
         {
-            args.PushMarkup(Loc.GetString("btp-nuke-examine-activating"));
+            args.PushMarkup(Loc.GetString("mriya-nuke-examine-activating"));
             return;
         }
 
         if (HasAuthenticationDisk(ent))
-            args.PushMarkup(Loc.GetString("btp-nuke-examine-disk-inserted"));
+            args.PushMarkup(Loc.GetString("mriya-nuke-examine-disk-inserted"));
         else
-            args.PushMarkup(Loc.GetString("btp-nuke-examine-ready"));
+            args.PushMarkup(Loc.GetString("mriya-nuke-examine-ready"));
     }
 
-    private void OnItemSlotInsertAttempt(Entity<BTPRMCNuclearChargeComponent> ent, ref ItemSlotInsertAttemptEvent args)
+    private void OnItemSlotInsertAttempt(Entity<MriyaRMCNuclearChargeComponent> ent, ref ItemSlotInsertAttemptEvent args)
     {
         if (args.Slot.ID != ent.Comp.DiskSlotId ||
             !HasComp<NukeDiskComponent>(args.Item) ||
@@ -148,25 +147,25 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (ent.Comp.Armed || ent.Comp.Detonated || ent.Comp.Activating)
         {
             args.Cancelled = true;
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-port-locked"), ent, args.User.Value, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-port-locked"), ent, args.User.Value, PopupType.MediumCaution);
             return;
         }
 
         if (!Transform(ent).Anchored)
         {
             args.Cancelled = true;
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-anchor-before-disk"), ent, args.User.Value, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-anchor-before-disk"), ent, args.User.Value, PopupType.MediumCaution);
             return;
         }
 
         if (!_access.IsAllowed(args.User.Value, ent))
         {
             args.Cancelled = true;
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-officer-disk-required"), ent, args.User.Value, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-officer-disk-required"), ent, args.User.Value, PopupType.MediumCaution);
         }
     }
 
-    private void OnItemSlotEjectAttempt(Entity<BTPRMCNuclearChargeComponent> ent, ref ItemSlotEjectAttemptEvent args)
+    private void OnItemSlotEjectAttempt(Entity<MriyaRMCNuclearChargeComponent> ent, ref ItemSlotEjectAttemptEvent args)
     {
         if (args.Slot.ID != ent.Comp.DiskSlotId)
             return;
@@ -175,11 +174,11 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         {
             args.Cancelled = true;
             if (args.User != null)
-                _popup.PopupClient(Loc.GetString("btp-nuke-popup-port-locked"), ent, args.User.Value, PopupType.MediumCaution);
+                _popup.PopupClient(Loc.GetString("mriya-nuke-popup-port-locked"), ent, args.User.Value, PopupType.MediumCaution);
         }
     }
 
-    private void OnInteractHand(Entity<BTPRMCNuclearChargeComponent> ent, ref InteractHandEvent args)
+    private void OnInteractHand(Entity<MriyaRMCNuclearChargeComponent> ent, ref InteractHandEvent args)
     {
         if (args.Handled)
             return;
@@ -188,35 +187,35 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (ent.Comp.Armed)
         {
             var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-already-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))), ent, args.User, PopupType.LargeCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-already-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))), ent, args.User, PopupType.LargeCaution);
             return;
         }
 
         if (ent.Comp.Activating)
         {
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-already-activating"), ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-already-activating"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         if (!_access.IsAllowed(args.User, ent))
         {
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-officer-activation-required"), ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-officer-activation-required"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         if (!Transform(ent).Anchored)
         {
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-anchor-before-activation"), ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-anchor-before-activation"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         if (!HasAuthenticationDisk(ent))
         {
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-disk-before-activation"), ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-disk-before-activation"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
-        var ev = new BTPNukeActivateDoAfterEvent();
+        var ev = new MriyaNukeActivateDoAfterEvent();
         var doAfter = new DoAfterArgs(EntityManager, args.User, ent.Comp.ActivationDelay, ev, ent, target: ent)
         {
             BreakOnMove = true,
@@ -228,10 +227,10 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
             return;
 
         ent.Comp.Activating = true;
-        _popup.PopupClient(Loc.GetString("btp-nuke-popup-activation-started"), ent, args.User, PopupType.LargeCaution);
+        _popup.PopupClient(Loc.GetString("mriya-nuke-popup-activation-started"), ent, args.User, PopupType.LargeCaution);
     }
 
-    private void OnActivateDoAfter(Entity<BTPRMCNuclearChargeComponent> ent, ref BTPNukeActivateDoAfterEvent args)
+    private void OnActivateDoAfter(Entity<MriyaRMCNuclearChargeComponent> ent, ref MriyaNukeActivateDoAfterEvent args)
     {
         ent.Comp.Activating = false;
 
@@ -241,7 +240,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         args.Handled = true;
         if (args.Cancelled)
         {
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-activation-interrupted"), ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-activation-interrupted"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
@@ -250,27 +249,27 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
 
         if (!Transform(ent).Anchored || !HasAuthenticationDisk(ent))
         {
-            _popup.PopupClient(Loc.GetString("btp-nuke-popup-final-check-failed"), ent, args.User, PopupType.MediumCaution);
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-final-check-failed"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
         ent.Comp.Armed = true;
         ent.Comp.DetonatesAt = _timing.CurTime + ent.Comp.DetonationDelay;
         var seconds = Math.Max(0, (int) ent.Comp.DetonationDelay.TotalSeconds);
-        Announce(Loc.GetString("btp-nuke-armed", ("remaining", FormatRemaining(seconds))));
-        AnnounceXenos(Loc.GetString("btp-nuke-xeno-armed", ("remaining", FormatRemainingUkrainian(seconds))));
+        Announce(Loc.GetString("mriya-nuke-armed", ("remaining", FormatRemaining(seconds))));
+        AnnounceXenos(Loc.GetString("mriya-nuke-xeno-armed", ("remaining", FormatRemainingUkrainian(seconds))));
     }
 
-    private void OnUnanchorAttempt(Entity<BTPRMCNuclearChargeComponent> ent, ref UnanchorAttemptEvent args)
+    private void OnUnanchorAttempt(Entity<MriyaRMCNuclearChargeComponent> ent, ref UnanchorAttemptEvent args)
     {
         if (!ent.Comp.Armed)
             return;
 
         args.Cancel();
-        _popup.PopupClient(Loc.GetString("btp-nuke-popup-armed-anchor-locked"), ent, args.User, PopupType.LargeCaution);
+        _popup.PopupClient(Loc.GetString("mriya-nuke-popup-armed-anchor-locked"), ent, args.User, PopupType.LargeCaution);
     }
 
-    private void OnBeforeDamageChanged(Entity<BTPRMCNuclearChargeComponent> ent, ref BeforeDamageChangedEvent args)
+    private void OnBeforeDamageChanged(Entity<MriyaRMCNuclearChargeComponent> ent, ref BeforeDamageChangedEvent args)
     {
         if (HasComp<ProjectileComponent>(args.Source) ||
             HasComp<XenoProjectileComponent>(args.Source))
@@ -297,7 +296,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         DefuseDestroyedCharge(ent);
     }
 
-    private void OnDamageChanged(Entity<BTPRMCNuclearChargeComponent> ent, ref DamageChangedEvent args)
+    private void OnDamageChanged(Entity<MriyaRMCNuclearChargeComponent> ent, ref DamageChangedEvent args)
     {
         if (args.Damageable.TotalDamage.Float() < ent.Comp.DisableDamage)
             return;
@@ -305,18 +304,18 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         DefuseDestroyedCharge(ent);
     }
 
-    private void OnDestroyed(Entity<BTPRMCNuclearChargeComponent> ent, ref DestructionEventArgs args)
+    private void OnDestroyed(Entity<MriyaRMCNuclearChargeComponent> ent, ref DestructionEventArgs args)
     {
         DefuseDestroyedCharge(ent);
     }
 
-    private void OnTerminating(Entity<BTPRMCNuclearChargeComponent> ent, ref EntityTerminatingEvent args)
+    private void OnTerminating(Entity<MriyaRMCNuclearChargeComponent> ent, ref EntityTerminatingEvent args)
     {
         StopWarningSiren(ent.Comp);
         StopWarheadTheme(ent.Comp);
     }
 
-    private void DefuseDestroyedCharge(Entity<BTPRMCNuclearChargeComponent> ent)
+    private void DefuseDestroyedCharge(Entity<MriyaRMCNuclearChargeComponent> ent)
     {
         if (ent.Comp.Detonated || ent.Comp.Destroyed)
             return;
@@ -326,8 +325,8 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         ent.Comp.Activating = false;
         StopWarningSiren(ent.Comp);
         StopWarheadTheme(ent.Comp);
-        Announce(Loc.GetString("btp-nuke-defused"));
-        AnnounceXenos(Loc.GetString("btp-nuke-xeno-defused"));
+        Announce(Loc.GetString("mriya-nuke-defused"));
+        AnnounceXenos(Loc.GetString("mriya-nuke-xeno-defused"));
         QueueDel(ent);
     }
 
@@ -336,10 +335,10 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return Loc.GetString(minutes == 1 ? "btp-nuke-time-minute" : "btp-nuke-time-minutes", ("minutes", minutes));
+            return Loc.GetString(minutes == 1 ? "mriya-nuke-time-minute" : "mriya-nuke-time-minutes", ("minutes", minutes));
         }
 
-        return Loc.GetString(seconds == 1 ? "btp-nuke-time-second" : "btp-nuke-time-seconds", ("seconds", seconds));
+        return Loc.GetString(seconds == 1 ? "mriya-nuke-time-second" : "mriya-nuke-time-seconds", ("seconds", seconds));
     }
 
     private string FormatRemainingUkrainian(int seconds)
@@ -347,10 +346,10 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         if (seconds >= 60)
         {
             var minutes = (int) Math.Ceiling(seconds / 60f);
-            return Loc.GetString("btp-nuke-time-ukrainian", ("value", minutes), ("unit", GetUkrainianPlural(minutes, "btp-nuke-time-ukrainian-minute-one", "btp-nuke-time-ukrainian-minute-few", "btp-nuke-time-ukrainian-minute-many")));
+            return Loc.GetString("mriya-nuke-time-ukrainian", ("value", minutes), ("unit", GetUkrainianPlural(minutes, "mriya-nuke-time-ukrainian-minute-one", "mriya-nuke-time-ukrainian-minute-few", "mriya-nuke-time-ukrainian-minute-many")));
         }
 
-        return Loc.GetString("btp-nuke-time-ukrainian", ("value", seconds), ("unit", GetUkrainianPlural(seconds, "btp-nuke-time-ukrainian-second-one", "btp-nuke-time-ukrainian-second-few", "btp-nuke-time-ukrainian-second-many")));
+        return Loc.GetString("mriya-nuke-time-ukrainian", ("value", seconds), ("unit", GetUkrainianPlural(seconds, "mriya-nuke-time-ukrainian-second-one", "mriya-nuke-time-ukrainian-second-few", "mriya-nuke-time-ukrainian-second-many")));
     }
 
     private string GetUkrainianPlural(int value, string oneKey, string fewKey, string manyKey)
@@ -368,20 +367,20 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         return Loc.GetString(key);
     }
 
-    private void StartDetonation(EntityUid uid, BTPRMCNuclearChargeComponent charge, TransformComponent xform)
+    private void StartDetonation(EntityUid uid, MriyaRMCNuclearChargeComponent charge, TransformComponent xform)
     {
         charge.Detonated = true;
         charge.NukeMapAt = _timing.CurTime + charge.MapKillDelay;
 
         var coordinates = _transform.GetMapCoordinates(uid, xform);
-        Announce(Loc.GetString("btp-nuke-detonated"));
-        AnnounceXenos(Loc.GetString("btp-nuke-xeno-detonated"));
+        Announce(Loc.GetString("mriya-nuke-detonated"));
+        AnnounceXenos(Loc.GetString("mriya-nuke-xeno-detonated"));
 
         StopWarningSiren(charge);
         StopWarheadTheme(charge);
         _audio.PlayGlobal(charge.MapExplosionSound, Filter.BroadcastMap(coordinates.MapId), true);
         _audio.PlayGlobal(charge.FlybyExplosionSound, GetAwayFromMapFilter(coordinates.MapId), true);
-        _rmcNuke.NukeMap(coordinates.MapId);
+        _mriyaNuke.NukeMap(coordinates.MapId);
 
         _rmcExplosion.QueueExplosion(
             coordinates,
@@ -395,7 +394,7 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
             canCreateVacuum: false);
     }
 
-    private void StartWarningSiren(BTPRMCNuclearChargeComponent charge, MapId mapId)
+    private void StartWarningSiren(MriyaRMCNuclearChargeComponent charge, MapId mapId)
     {
         if (charge.WarningSirenStream != null)
             return;
@@ -404,17 +403,17 @@ public sealed partial class BTPRMCNuclearChargeSystem : EntitySystem
         charge.WarningSirenStream = _audio.PlayGlobal(charge.ThirtySecondWarningSound, Filter.BroadcastMap(mapId), true, charge.ThirtySecondWarningSound.Params)?.Entity;
     }
 
-    private void StopWarningSiren(BTPRMCNuclearChargeComponent charge)
+    private void StopWarningSiren(MriyaRMCNuclearChargeComponent charge)
     {
         charge.WarningSirenStream = _audio.Stop(charge.WarningSirenStream);
     }
 
-    private void StopWarheadTheme(BTPRMCNuclearChargeComponent charge)
+    private void StopWarheadTheme(MriyaRMCNuclearChargeComponent charge)
     {
         charge.WarheadThemeStream = _audio.Stop(charge.WarheadThemeStream);
     }
 
-    private bool HasAuthenticationDisk(Entity<BTPRMCNuclearChargeComponent> ent)
+    private bool HasAuthenticationDisk(Entity<MriyaRMCNuclearChargeComponent> ent)
     {
         return _itemSlots.TryGetSlot(ent.Owner, ent.Comp.DiskSlotId, out var slot) &&
                slot.HasItem;

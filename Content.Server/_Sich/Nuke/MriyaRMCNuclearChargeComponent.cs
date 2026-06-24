@@ -1,15 +1,15 @@
 using Robust.Shared.Audio;
 
-namespace Content.Server._BTP.Nuke;
+namespace Content.Server._Sich.Nuke;
 
-[RegisterComponent, Access(typeof(BTPRMCNuclearChargeSystem))]
-public sealed partial class BTPRMCNuclearChargeComponent : Component
+[RegisterComponent, Access(typeof(MriyaRMCNuclearChargeSystem))]
+public sealed partial class MriyaRMCNuclearChargeComponent : Component
 {
     /// <summary>
     /// Item slot used to hold the nuclear authentication disk.
     /// </summary>
     [DataField]
-    public string DiskSlotId = "btp-rmc-nuke-disk";
+    public string DiskSlotId = "mriya-rmc-nuke-disk";
 
     /// <summary>
     /// Time required for an authorized user to complete the activation sequence.
@@ -33,31 +33,31 @@ public sealed partial class BTPRMCNuclearChargeComponent : Component
     /// Looping siren played on the affected map after the three-minute warning.
     /// </summary>
     [DataField]
-    public SoundSpecifier ThirtySecondWarningSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/30sec_nuke_warning.ogg", AudioParams.Default.WithVolume(-1).WithLoop(true));
+    public SoundSpecifier ThirtySecondWarningSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/30sec_nuke_warning.ogg", AudioParams.Default.WithVolume(-1).WithLoop(true));
 
     /// <summary>
     /// Global music cue started shortly before detonation.
     /// </summary>
     [DataField]
-    public SoundSpecifier WarheadThemeSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/warhead_theme.ogg", AudioParams.Default.WithVolume(0));
+    public SoundSpecifier WarheadThemeSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/warhead_theme.ogg", AudioParams.Default.WithVolume(0));
 
     /// <summary>
     /// Explosion sound heard by entities on the affected map.
     /// </summary>
     [DataField]
-    public SoundSpecifier MapExplosionSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/Nuke_explosion_map_sound.ogg", AudioParams.Default.WithVolume(2));
+    public SoundSpecifier MapExplosionSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/Nuke_explosion_map_sound.ogg", AudioParams.Default.WithVolume(2));
 
     /// <summary>
     /// Flyby explosion sound heard by entities away from the affected map.
     /// </summary>
     [DataField]
-    public SoundSpecifier FlybyExplosionSound = new SoundPathSpecifier("/Audio/_BTP/Nuke/Alamo_Flyby_Nukesoundeffect.ogg", AudioParams.Default.WithVolume(-1));
+    public SoundSpecifier FlybyExplosionSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/Alamo_Flyby_Nukesoundeffect.ogg", AudioParams.Default.WithVolume(-1));
 
     /// <summary>
     /// Explosion prototype used for the visual blast wave.
     /// </summary>
     [DataField]
-    public string ExplosionType = "BTPNuke";
+    public string ExplosionType = "MriyaNuke";
 
     /// <summary>
     /// Total visual explosion intensity.

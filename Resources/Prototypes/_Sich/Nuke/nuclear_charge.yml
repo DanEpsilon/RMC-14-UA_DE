@@ -1,5 +1,5 @@
 - type: explosion
-  id: BTPNuke
+  id: MriyaNuke
   damagePerIntensity:
     types:
       Blunt: 500
@@ -12,19 +12,19 @@
   texturePath: /Textures/Effects/fire.rsi
   fireColor: Transparent
   sound:
-    path: /Audio/_BTP/Nuke/Nuke_explosion_map_sound.ogg
+    path: /Audio/_Sich/Nuke/Nuke_explosion_map_sound.ogg
     params:
       maxDistance: 300
       volume: 2
   smallSound:
-    path: /Audio/_BTP/Nuke/Nuke_explosion_map_sound.ogg
+    path: /Audio/_Sich/Nuke/Nuke_explosion_map_sound.ogg
     params:
       maxDistance: 300
       volume: 2
 
 - type: entity
   parent: [BaseStructureDynamic, StructureWheeled]
-  id: BTPRMCNuclearCharge
+  id: MriyaRMCNuclearCharge
   name: nuclear fission explosive
   description: A Franco-Weston nuclear fission explosive released through ARES strategic area denial authorization.
   components:
@@ -54,7 +54,7 @@
     access: [["RMCAccessCommand"]]
   - type: ItemSlots
     slots:
-      btp-rmc-nuke-disk:
+      mriya-rmc-nuke-disk:
         name: nuclear authentication disk
         swap: false
         insertSound:
@@ -66,5 +66,5 @@
           - NukeDisk
   - type: ContainerContainer
     containers:
-      btp-rmc-nuke-disk: !type:ContainerSlot
-  - type: BTPRMCNuclearCharge
+      mriya-rmc-nuke-disk: !type:ContainerSlot
+  - type: MriyaRMCNuclearCharge

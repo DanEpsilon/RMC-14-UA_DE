@@ -1,10 +1,10 @@
 using Content.Shared.FixedPoint;
 using Robust.Shared.Prototypes;
 
-namespace Content.Server._BTP.Nuke;
+namespace Content.Server._Sich.Nuke;
 
-[RegisterComponent, Access(typeof(BTPIntelNukeSystem))]
-public sealed partial class BTPIntelNukeObjectiveComponent : Component
+[RegisterComponent, Access(typeof(MriyaIntelNukeSystem))]
+public sealed partial class MriyaIntelNukeObjectiveComponent : Component
 {
     /// <summary>
     /// Amount of earned intelligence points required before the nuclear charge authorization sequence can begin.
@@ -28,12 +28,12 @@ public sealed partial class BTPIntelNukeObjectiveComponent : Component
     /// Prototype delivered by the authorized tech option.
     /// </summary>
     [DataField]
-    public EntProtoId ChargePrototype = "BTPRMCNuclearCharge";
+    public EntProtoId ChargePrototype = "MriyaRMCNuclearCharge";
 
     /// <summary>
     /// Current authorization state for the nuclear objective.
     /// </summary>
-    public BTPIntelNukeStage Stage = BTPIntelNukeStage.WaitingForIntel;
+    public MriyaIntelNukeStage Stage = MriyaIntelNukeStage.WaitingForIntel;
 
     /// <summary>
     /// Accumulated time spent decrypting while enough towers are controlled.
@@ -61,7 +61,7 @@ public sealed partial class BTPIntelNukeObjectiveComponent : Component
     public readonly HashSet<int> DecodeAnnouncedAtSeconds = new();
 }
 
-public enum BTPIntelNukeStage
+public enum MriyaIntelNukeStage
 {
     WaitingForIntel,
     WaitingForTowers,
