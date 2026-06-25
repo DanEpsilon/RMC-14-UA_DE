@@ -15,7 +15,7 @@
   description: Better keep this safe.
   components:
   - type: NukeDisk
-  - type: IntelDetectorTracked
+  - type: IntelDetectorTracked # Mriya
   - type: Sprite
     state: nucleardisk
 
