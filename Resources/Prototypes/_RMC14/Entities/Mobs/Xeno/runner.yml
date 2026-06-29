@@ -25,6 +25,12 @@
     tags:
     - DoorBumpOpener
     - RMCSynthGrabbable
+  - type: Butcherable # Mriya
+    spawned:
+    - id: MRFoodMeatXeno
+      amount: 4
+    - id: MRXenoClaw
+      amount: 3
   - type: Xeno
     role: CMXenoRunner
     tier: 1
