@@ -448,7 +448,8 @@
         - name: mriya-intel-tech-nuclear-charge-name
           description: mriya-intel-tech-nuclear-charge-description
           cost: 10
-          timeLock: 9999m
+          timeLock: 90m
+          disabled: true
           events:
           - !type:TechLogisticsDeliveryEvent
             object: MriyaRMCNuclearCharge

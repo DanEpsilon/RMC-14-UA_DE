@@ -23,10 +23,23 @@
       volume: 2
 
 - type: entity
+  parent: RMCNukeDisk
+  id: MriyaRMCNukeDisk
+  name: диск ядерної автентифікації
+  description: Диск авторизації стратегічного ядерного заряду.
+  suffix: Mriya
+  components:
+  - type: IntelDetectorTracked
+  - type: Tag
+    tags:
+    - MriyaRMCNukeDisk
+
+- type: entity
   parent: [BaseStructureDynamic, StructureWheeled]
   id: MriyaRMCNuclearCharge
-  name: nuclear fission explosive
-  description: A Franco-Weston nuclear fission explosive released through ARES strategic area denial authorization.
+  suffix: Mriya
+  name: стратегічний ядерний заряд
+  description: Ядерний фугасний заряд лінії Франко-Вестон. Після авторизації закріпіть заряд, вставте диск ядерної автентифікації та запустіть протокол офіцером.
   components:
   - type: Sprite
     sprite: _RMC14/Structures/Machines/Nuke.rsi
@@ -55,15 +68,16 @@
   - type: ItemSlots
     slots:
       mriya-rmc-nuke-disk:
-        name: nuclear authentication disk
+        name: диск ядерної автентифікації
         swap: false
         insertSound:
           path: /Audio/Machines/terminal_insert_disc.ogg
         ejectSound:
           path: /Audio/Machines/terminal_insert_disc.ogg
+        whitelistFailPopup: mriya-nuke-popup-wrong-disk
         whitelist:
-          components:
-          - NukeDisk
+          tags:
+          - MriyaRMCNukeDisk
   - type: ContainerContainer
     containers:
       mriya-rmc-nuke-disk: !type:ContainerSlot

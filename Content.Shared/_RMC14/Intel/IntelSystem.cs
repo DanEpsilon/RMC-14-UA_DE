@@ -123,8 +123,9 @@ public sealed class IntelSystem : EntitySystem
     private static readonly EntProtoId TechnicalManualProto = "RMCIntelTechnicalManual";
     // private static readonly EntProtoId ResearchPaperProto = "RMCIntelResearchPaper";
     // private static readonly EntProtoId VialBoxProto = "RMCIntelVialBox";
-    private static readonly EntProtoId RMCNukeDiskProto = "RMCNukeDisk";
+    private static readonly EntProtoId MriyaRMCNukeDiskProto = "MriyaRMCNukeDisk";
     private const string RMCNukeDiskPrototypeId = "RMCNukeDisk";
+    private const string MriyaRMCNukeDiskPrototypeId = "MriyaRMCNukeDisk";
 
     private static readonly EntProtoId[] ExperimentalDeviceProtos =
     [
@@ -1347,14 +1348,22 @@ public sealed class IntelSystem : EntitySystem
         return items;
     }
 
-    private void EnsureSingleRMCNukeDisk()
+    private void EnsureSingleMriyaRMCNukeDisk()
     {
         var disks = new List<EntityUid>();
+        var legacyDisks = new List<EntityUid>();
         var diskQuery = EntityQueryEnumerator<NukeDiskComponent, MetaDataComponent>();
         while (diskQuery.MoveNext(out var uid, out _, out var metadata))
         {
-            if (metadata.EntityPrototype?.ID == RMCNukeDiskPrototypeId)
+            if (metadata.EntityPrototype?.ID == MriyaRMCNukeDiskPrototypeId)
                 disks.Add(uid);
+            else if (metadata.EntityPrototype?.ID == RMCNukeDiskPrototypeId)
+                legacyDisks.Add(uid);
+        }
+
+        foreach (var legacy in legacyDisks)
+        {
+            QueueDel(legacy);
         }
 
         for (var i = 1; i < disks.Count; i++)
@@ -1365,10 +1374,10 @@ public sealed class IntelSystem : EntitySystem
         if (disks.Count > 0)
             return;
 
-        SpawnRMCNukeDisk();
+        SpawnMriyaRMCNukeDisk();
     }
 
-    private void SpawnRMCNukeDisk()
+    private void SpawnMriyaRMCNukeDisk()
     {
         List<Entity<IntelSpawnerComponent>>? spawners = null;
         var type = _random.Pick(_diskChances);
@@ -1393,7 +1402,7 @@ public sealed class IntelSystem : EntitySystem
 
         var spawner = _random.Pick(spawners);
         var coords = _transform.GetMoverCoordinates(spawner);
-        var disk = Spawn(RMCNukeDiskProto, coords);
+        var disk = Spawn(MriyaRMCNukeDiskProto, coords);
 
         _nearby.Clear();
         _entityLookup.GetEntitiesInRange(coords, 0.5f, _nearby, LookupFlags.Uncontained);
@@ -1471,7 +1480,7 @@ public sealed class IntelSystem : EntitySystem
             }
 
             var tree = EnsureTechTree();
-            EnsureSingleRMCNukeDisk();
+            EnsureSingleMriyaRMCNukeDisk();
 
             var lows = SpawnIntel(PaperScrapProto, _paperScraps, _paperScrapChances);
             var reports = SpawnIntel(ProgressReportProto, _progressReports, _progressReportChances);

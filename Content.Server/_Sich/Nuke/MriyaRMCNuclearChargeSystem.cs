@@ -14,12 +14,14 @@ using Content.Shared.DoAfter;
 using Content.Shared.Examine;
 using Content.Shared.GameTicking.Components;
 using Content.Shared.Interaction;
-using Content.Shared.Nuke;
+using Content.Shared.Movement.Pulling.Events;
 using Content.Shared.Projectiles;
 using Content.Shared.Popups;
+using Content.Shared.Tag;
 using Robust.Server.Audio;
 using Robust.Shared.Map;
 using Robust.Shared.Player;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
 namespace Content.Server._Sich.Nuke;
@@ -35,10 +37,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     [Dependency] private readonly RMCExplosionSystem _rmcExplosion = default!;
     [Dependency] private readonly MriyaRMCNukeSystem _mriyaNuke = default!;
     [Dependency] private readonly RoundEndSystem _roundEnd = default!;
+    [Dependency] private readonly TagSystem _tag = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly XenoAnnounceSystem _xenoAnnounce = default!;
 
+    private static readonly ProtoId<TagPrototype> MriyaNukeDiskTag = "MriyaRMCNukeDisk";
     private static readonly int[] AnnouncementThresholds = [300, 180, 60, 30, 10];
     private static readonly TimeSpan ThemeLeadTime = TimeSpan.FromSeconds(46);
 
@@ -52,6 +56,7 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, InteractHandEvent>(OnInteractHand);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, MriyaNukeActivateDoAfterEvent>(OnActivateDoAfter);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, UnanchorAttemptEvent>(OnUnanchorAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, PullAttemptEvent>(OnPullAttempt);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, BeforeDamageChangedEvent>(OnBeforeDamageChanged);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, DamageChangedEvent>(OnDamageChanged);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, DestructionEventArgs>(OnDestroyed);
@@ -138,9 +143,15 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     private void OnItemSlotInsertAttempt(Entity<MriyaRMCNuclearChargeComponent> ent, ref ItemSlotInsertAttemptEvent args)
     {
         if (args.Slot.ID != ent.Comp.DiskSlotId ||
-            !HasComp<NukeDiskComponent>(args.Item) ||
             args.User == null)
         {
+            return;
+        }
+
+        if (!_tag.HasTag(args.Item, MriyaNukeDiskTag))
+        {
+            args.Cancelled = true;
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-wrong-disk"), ent, args.User.Value, PopupType.MediumCaution);
             return;
         }
 
@@ -267,6 +278,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
 
         args.Cancel();
         _popup.PopupClient(Loc.GetString("mriya-nuke-popup-armed-anchor-locked"), ent, args.User, PopupType.LargeCaution);
+    }
+
+    private void OnPullAttempt(Entity<MriyaRMCNuclearChargeComponent> ent, ref PullAttemptEvent args)
+    {
+        if (args.PulledUid == ent.Owner)
+            args.Cancelled = true;
     }
 
     private void OnBeforeDamageChanged(Entity<MriyaRMCNuclearChargeComponent> ent, ref BeforeDamageChangedEvent args)

@@ -995,6 +995,9 @@
   id: FakeNukeDisk
 
 - type: Tag
+  id: MriyaRMCNukeDisk
+
+- type: Tag
   id: NukeOpsUplink
 
 - type: Tag

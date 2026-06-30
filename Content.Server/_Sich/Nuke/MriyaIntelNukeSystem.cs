@@ -14,6 +14,7 @@ public sealed class MriyaIntelNukeSystem : EntitySystem
     [Dependency] private readonly IntelSystem _intel = default!;
     [Dependency] private readonly SharedMarineAnnounceSystem _marineAnnounce = default!;
     [Dependency] private readonly XenoAnnounceSystem _xenoAnnounce = default!;
+    [Dependency] private readonly SharedGameTicker _ticker = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
 
     private static readonly TimeSpan UpdateInterval = TimeSpan.FromSeconds(1);
@@ -69,9 +70,11 @@ public sealed class MriyaIntelNukeSystem : EntitySystem
         var elapsed = time - comp.LastUpdatedAt;
         comp.LastUpdatedAt = time;
 
-        if (comp.Stage == MriyaIntelNukeStage.WaitingForIntel &&
-            tree.Comp.Tree.TotalEarned >= comp.RequiredIntelPoints)
+        if (comp.Stage == MriyaIntelNukeStage.WaitingForIntel)
         {
+            if (!CanStartAuthorization(tree, comp))
+                return;
+
             comp.Stage = MriyaIntelNukeStage.WaitingForTowers;
             Announce(Loc.GetString("mriya-nuke-intel-fragments-recovered"));
             AnnounceXenos(Loc.GetString("mriya-nuke-xeno-intel-fragments-recovered"));
@@ -168,27 +171,66 @@ public sealed class MriyaIntelNukeSystem : EntitySystem
         if (comp.Stage == MriyaIntelNukeStage.ChargeAuthorized)
             return;
 
-        for (var tierIndex = 0; tierIndex < tree.Comp.Tree.Options.Count; tierIndex++)
+        if (TryFindChargeOption(tree, comp.ChargePrototype, out var tier, out var optionIndex, out var option))
         {
-            var tier = tree.Comp.Tree.Options[tierIndex];
-            for (var optionIndex = 0; optionIndex < tier.Count; optionIndex++)
-            {
-                var option = tier[optionIndex];
-                if (!DeliversCharge(option, comp.ChargePrototype))
-                    continue;
+            tier[optionIndex] = option with { Disabled = false };
+            comp.Stage = MriyaIntelNukeStage.ChargeAuthorized;
+            Dirty(tree);
+            _intel.UpdateTree(tree);
 
-                tier[optionIndex] = option with { TimeLock = TimeSpan.Zero };
-                comp.Stage = MriyaIntelNukeStage.ChargeAuthorized;
-                Dirty(tree);
-                _intel.UpdateTree(tree);
-
-                Announce(Loc.GetString("mriya-nuke-decryption-complete"));
-                AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-complete"));
-                return;
-            }
+            Announce(Loc.GetString("mriya-nuke-decryption-complete"));
+            AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-complete"));
+            return;
         }
 
         Announce(Loc.GetString("mriya-nuke-decryption-complete-missing-option"));
+    }
+
+    private bool CanStartAuthorization(Entity<IntelTechTreeComponent> tree, MriyaIntelNukeObjectiveComponent comp)
+    {
+        if (tree.Comp.Tree.TotalEarned < comp.RequiredIntelPoints)
+            return false;
+
+        if (!TryFindChargeOption(tree, comp.ChargePrototype, out _, out _, out var option, out var tierIndex))
+            return false;
+
+        return tree.Comp.Tree.Tier >= tierIndex &&
+               option.TimeLock <= _ticker.RoundDuration();
+    }
+
+    private bool TryFindChargeOption(
+        Entity<IntelTechTreeComponent> tree,
+        EntProtoId chargePrototype,
+        out List<TechOption> tier,
+        out int optionIndex,
+        out TechOption option)
+    {
+        return TryFindChargeOption(tree, chargePrototype, out tier, out optionIndex, out option, out _);
+    }
+
+    private bool TryFindChargeOption(
+        Entity<IntelTechTreeComponent> tree,
+        EntProtoId chargePrototype,
+        out List<TechOption> tier,
+        out int optionIndex,
+        out TechOption option,
+        out int tierIndex)
+    {
+        for (tierIndex = 0; tierIndex < tree.Comp.Tree.Options.Count; tierIndex++)
+        {
+            tier = tree.Comp.Tree.Options[tierIndex];
+            for (optionIndex = 0; optionIndex < tier.Count; optionIndex++)
+            {
+                option = tier[optionIndex];
+                if (DeliversCharge(option, chargePrototype))
+                    return true;
+            }
+        }
+
+        tier = default!;
+        optionIndex = -1;
+        option = default;
+        return false;
     }
 
     private bool DeliversCharge(TechOption option, EntProtoId chargePrototype)
