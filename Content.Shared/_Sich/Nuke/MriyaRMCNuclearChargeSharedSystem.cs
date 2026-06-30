@@ -1,0 +1,51 @@
+using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Movement.Pulling.Events;
+using Content.Shared.Popups;
+using Content.Shared.Tag;
+using Robust.Shared.Prototypes;
+
+namespace Content.Shared._Sich.Nuke;
+
+public sealed class MriyaRMCNuclearChargeSharedSystem : EntitySystem
+{
+    [Dependency] private readonly SharedPopupSystem _popup = default!;
+    [Dependency] private readonly TagSystem _tag = default!;
+
+    private static readonly ProtoId<TagPrototype> MriyaNukeDiskTag = "MriyaRMCNukeDisk";
+
+    public override void Initialize()
+    {
+        base.Initialize();
+
+        SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, PullAttemptEvent>(OnPullAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsertAttempt);
+    }
+
+    private void OnPullAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref PullAttemptEvent args)
+    {
+        if (args.PulledUid == ent.Owner)
+            args.Cancelled = true;
+    }
+
+    private void OnItemSlotInsertAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref ItemSlotInsertAttemptEvent args)
+    {
+        if (args.Slot.ID != ent.Comp.DiskSlotId ||
+            args.User == null)
+        {
+            return;
+        }
+
+        if (!_tag.HasTag(args.Item, MriyaNukeDiskTag))
+        {
+            args.Cancelled = true;
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-wrong-disk"), ent, args.User.Value, PopupType.MediumCaution);
+            return;
+        }
+
+        if (Transform(ent).Anchored)
+            return;
+
+        args.Cancelled = true;
+        _popup.PopupClient(Loc.GetString("mriya-nuke-popup-anchor-before-disk"), ent, args.User.Value, PopupType.MediumCaution);
+    }
+}

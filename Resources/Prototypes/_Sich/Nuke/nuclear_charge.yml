@@ -63,6 +63,10 @@
   - type: MaxDamage
     max: 350
   - type: InteractionOutline
+  - type: PowerLoaderGrabbable
+    virtualRight: RMCVirtualWarheadRight
+    virtualLeft: RMCVirtualWarheadLeft
+  - type: Item
   - type: AccessReader
     access: [["RMCAccessCommand"]]
   - type: ItemSlots
@@ -81,4 +85,5 @@
   - type: ContainerContainer
     containers:
       mriya-rmc-nuke-disk: !type:ContainerSlot
+  - type: MriyaRMCNuclearChargeMarker
   - type: MriyaRMCNuclearCharge
