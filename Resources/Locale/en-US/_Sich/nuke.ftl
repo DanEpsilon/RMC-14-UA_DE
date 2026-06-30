@@ -11,13 +11,13 @@ mriya-nuke-time-ukrainian-second-few = секунди
 mriya-nuke-time-ukrainian-second-many = секунд
 
 mriya-intel-tech-nuclear-charge-name = Стратегічний ядерний заряд
-mriya-intel-tech-nuclear-charge-description = Ядерний фугасний заряд лінії Франко-Вестон. Потребує декодування через дві вухо-вежі та доступний після 90 хвилин операції.
+mriya-intel-tech-nuclear-charge-description = Ядерний фугасний заряд лінії Франко-Вестон. Потребує декодування через дві вежі зв'язку та доступний після 90 хвилин операції.
 mriya-intel-tech-announcement-nuclear-charge = Стратегічний ядерний заряд було санкціоновано. Ядерний фугасний актив буде передано логістиці через АТСС.
 
-mriya-nuke-intel-fragments-recovered = Фрагменти ядерної авторизації отримано. Утримуйте дві вухо-вежі, щоб розпочати декодування.
-mriya-nuke-decryption-paused = Зв'язок із вухо-вежами втрачено. Декодування ядерного заряду зупинено на {$percent}%.
-mriya-nuke-decryption-resumed = Дві вухо-вежі під контролем морпіхів. Декодування ядерного заряду відновлено, завершення через {$remaining}.
-mriya-nuke-decryption-waiting-towers = Декодування ядерного заряду очікує контролю вухо-веж: {$active}/{$required}.
+mriya-nuke-intel-fragments-recovered = Фрагменти ядерної авторизації отримано. Утримуйте дві вежі зв'язку, щоб розпочати декодування.
+mriya-nuke-decryption-paused = Контроль над вежами зв'язку втрачено. Декодування ядерного заряду зупинено на {$percent}%.
+mriya-nuke-decryption-resumed = Дві вежі зв'язку під контролем морпіхів. Декодування ядерного заряду відновлено, завершення через {$remaining}.
+mriya-nuke-decryption-waiting-towers = Декодування ядерного заряду очікує контролю веж зв'язку: {$active}/{$required}.
 mriya-nuke-decryption-progress = Декодування ядерного заряду: {$percent}%. Залишилось {$remaining}.
 mriya-nuke-decryption-complete = Декодування завершено. Стратегічний ядерний заряд авторизовано в консолі активів.
 mriya-nuke-decryption-complete-missing-option = Декодування ядерного боєзаряду завершено, але відповідний пункт технологій для авторизації ядерного фугасного заряду не знайдено.
@@ -53,6 +53,7 @@ mriya-nuke-popup-already-activating = Заряд уже обробляє пос�
 mriya-nuke-popup-officer-activation-required = Для запуску протоколу детонації потрібна офіцерська авторизація.
 mriya-nuke-popup-anchor-before-activation = Перед активацією заряд потрібно закріпити.
 mriya-nuke-popup-disk-before-activation = Перед запуском протоколу детонації вставте диск ядерної автентифікації.
+mriya-nuke-popup-decryption-required = Перед запуском заряду потрібно завершити декодування ядерного протоколу через дві вежі зв'язку.
 mriya-nuke-popup-activation-started = Ви починаєте вводити декодовану послідовність ядерної активації.
 mriya-nuke-popup-activation-interrupted = Послідовність ядерної активації перервано.
 mriya-nuke-popup-final-check-failed = Послідовність ядерної активації не пройшла фінальну перевірку авторизації.

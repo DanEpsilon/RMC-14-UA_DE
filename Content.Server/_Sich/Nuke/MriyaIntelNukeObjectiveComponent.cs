@@ -3,7 +3,7 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Server._Sich.Nuke;
 
-[RegisterComponent, Access(typeof(MriyaIntelNukeSystem))]
+[RegisterComponent, Access(typeof(MriyaIntelNukeSystem), typeof(MriyaNukeCommand))]
 public sealed partial class MriyaIntelNukeObjectiveComponent : Component
 {
     /// <summary>

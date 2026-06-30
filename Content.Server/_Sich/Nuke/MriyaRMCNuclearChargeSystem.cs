@@ -206,6 +206,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
             return;
         }
 
+        if (!IsChargeAuthorizationComplete())
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-decryption-required"), ent, args.User, PopupType.MediumCaution);
+            return;
+        }
+
         var ev = new MriyaNukeActivateDoAfterEvent();
         var doAfter = new DoAfterArgs(EntityManager, args.User, ent.Comp.ActivationDelay, ev, ent, target: ent)
         {
@@ -237,6 +243,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
 
         if (ent.Comp.Armed || ent.Comp.Detonated)
             return;
+
+        if (!IsChargeAuthorizationComplete())
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-decryption-required"), ent, args.User, PopupType.MediumCaution);
+            return;
+        }
 
         if (!Transform(ent).Anchored || !HasAuthenticationDisk(ent))
         {
@@ -408,6 +420,18 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     {
         return _itemSlots.TryGetSlot(ent.Owner, ent.Comp.DiskSlotId, out var slot) &&
                slot.HasItem;
+    }
+
+    private bool IsChargeAuthorizationComplete()
+    {
+        var query = EntityQueryEnumerator<MriyaIntelNukeObjectiveComponent>();
+        while (query.MoveNext(out var objective))
+        {
+            if (objective.Stage == MriyaIntelNukeStage.ChargeAuthorized)
+                return true;
+        }
+
+        return false;
     }
 
     private void Announce(string message)

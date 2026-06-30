@@ -1,4 +1,6 @@
+using Content.Shared._RMC14.PowerLoader;
 using Content.Shared.Containers.ItemSlots;
+using Content.Shared.Item;
 using Content.Shared.Movement.Pulling.Events;
 using Content.Shared.Popups;
 using Content.Shared.Tag;
@@ -18,6 +20,7 @@ public sealed class MriyaRMCNuclearChargeSharedSystem : EntitySystem
         base.Initialize();
 
         SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, PullAttemptEvent>(OnPullAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, GettingPickedUpAttemptEvent>(OnGettingPickedUpAttempt);
         SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsertAttempt);
     }
 
@@ -25,6 +28,14 @@ public sealed class MriyaRMCNuclearChargeSharedSystem : EntitySystem
     {
         if (args.PulledUid == ent.Owner)
             args.Cancelled = true;
+    }
+
+    private void OnGettingPickedUpAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref GettingPickedUpAttemptEvent args)
+    {
+        if (HasComp<PowerLoaderComponent>(args.User))
+            return;
+
+        args.Cancel();
     }
 
     private void OnItemSlotInsertAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref ItemSlotInsertAttemptEvent args)
