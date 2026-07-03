@@ -22,6 +22,16 @@ public sealed class MriyaRMCNuclearChargeSharedSystem : EntitySystem
         SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, PullAttemptEvent>(OnPullAttempt);
         SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, GettingPickedUpAttemptEvent>(OnGettingPickedUpAttempt);
         SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsertAttempt);
+        SubscribeLocalEvent<MriyaRMCNuclearChargeMarkerComponent, PowerLoaderGrabEvent>(OnPowerLoaderGrab);
+    }
+
+    public void SetActiveLocked(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, bool activeLocked)
+    {
+        if (ent.Comp.ActiveLocked == activeLocked)
+            return;
+
+        ent.Comp.ActiveLocked = activeLocked;
+        Dirty(ent);
     }
 
     private void OnPullAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref PullAttemptEvent args)
@@ -32,10 +42,30 @@ public sealed class MriyaRMCNuclearChargeSharedSystem : EntitySystem
 
     private void OnGettingPickedUpAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref GettingPickedUpAttemptEvent args)
     {
+        if (ent.Comp.ActiveLocked)
+        {
+            args.Cancel();
+            return;
+        }
+
         if (HasComp<PowerLoaderComponent>(args.User))
             return;
 
         args.Cancel();
+    }
+
+    private void OnPowerLoaderGrab(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref PowerLoaderGrabEvent args)
+    {
+        if (!ent.Comp.ActiveLocked)
+            return;
+
+        args.Handled = true;
+        args.ToGrab = null;
+
+        foreach (var buckled in args.Buckled)
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-armed-anchor-locked"), ent, buckled, PopupType.MediumCaution);
+        }
     }
 
     private void OnItemSlotInsertAttempt(Entity<MriyaRMCNuclearChargeMarkerComponent> ent, ref ItemSlotInsertAttemptEvent args)

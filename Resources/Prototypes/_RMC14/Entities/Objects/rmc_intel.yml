@@ -449,7 +449,6 @@
           description: mriya-intel-tech-nuclear-charge-description
           cost: 10
           timeLock: 90m
-          disabled: true
           events:
           - !type:TechLogisticsDeliveryEvent
             object: MriyaRMCNuclearCharge
@@ -457,7 +456,7 @@
             author: rmc-intel-tech-announcement-special-assets-author
             message: mriya-intel-tech-announcement-nuclear-charge
           icon:
-            sprite: _RMC14/Structures/Machines/Nuke.rsi
+            sprite: _RMC14/Interface/tech_tree.rsi
             state: nuke
 # Mriya end
   - type: VehicleSupplyTech

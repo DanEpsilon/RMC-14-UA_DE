@@ -11,4 +11,10 @@ public sealed partial class MriyaRMCNuclearChargeMarkerComponent : Component
     /// </summary>
     [DataField, AutoNetworkedField]
     public string DiskSlotId = "mriya-rmc-nuke-disk";
+
+    /// <summary>
+    /// Whether the charge is in an active launch state and must not be moved.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public bool ActiveLocked;
 }

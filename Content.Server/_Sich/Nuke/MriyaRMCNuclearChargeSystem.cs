@@ -16,7 +16,9 @@ using Content.Shared.GameTicking.Components;
 using Content.Shared.Interaction;
 using Content.Shared.Projectiles;
 using Content.Shared.Popups;
+using Content.Shared.UserInterface;
 using Robust.Server.Audio;
+using Robust.Server.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
@@ -33,9 +35,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     [Dependency] private readonly SharedPopupSystem _popup = default!;
     [Dependency] private readonly RMCExplosionSystem _rmcExplosion = default!;
     [Dependency] private readonly MriyaRMCNukeSystem _mriyaNuke = default!;
+    [Dependency] private readonly MriyaRMCNuclearChargeSharedSystem _mriyaNukeShared = default!;
+    [Dependency] private readonly RMCPlanetSystem _rmcPlanet = default!;
     [Dependency] private readonly RoundEndSystem _roundEnd = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
+    [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly XenoAnnounceSystem _xenoAnnounce = default!;
 
     private static readonly int[] AnnouncementThresholds = [300, 180, 60, 30, 10];
@@ -55,6 +60,13 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, DamageChangedEvent>(OnDamageChanged);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, DestructionEventArgs>(OnDestroyed);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, EntityTerminatingEvent>(OnTerminating);
+
+        Subs.BuiEvents<MriyaRMCNuclearChargeComponent>(MriyaRMCNuclearChargeUiKey.Key, subs =>
+        {
+            subs.Event<BoundUIOpenedEvent>(OnUiOpened);
+            subs.Event<MriyaRMCNuclearChargeStartBuiMsg>(OnUiStart);
+            subs.Event<MriyaRMCNuclearChargeAbortBuiMsg>(OnUiAbort);
+        });
     }
 
     public override void Update(float frameTime)
@@ -69,6 +81,9 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
                 QueueDel(uid);
                 continue;
             }
+
+            UpdateMarkerLock(uid, charge);
+            UpdateUi((uid, charge));
 
             if (charge.Detonated)
             {
@@ -169,51 +184,48 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         }
     }
 
+    private void OnUiOpened(Entity<MriyaRMCNuclearChargeComponent> ent, ref BoundUIOpenedEvent args)
+    {
+        UpdateUi(ent);
+    }
+
+    private void OnUiStart(Entity<MriyaRMCNuclearChargeComponent> ent, ref MriyaRMCNuclearChargeStartBuiMsg args)
+    {
+        TryStartActivation(ent, args.Actor);
+    }
+
+    private void OnUiAbort(Entity<MriyaRMCNuclearChargeComponent> ent, ref MriyaRMCNuclearChargeAbortBuiMsg args)
+    {
+        AbortLaunch(ent, args.Actor);
+    }
+
     private void OnInteractHand(Entity<MriyaRMCNuclearChargeComponent> ent, ref InteractHandEvent args)
     {
         if (args.Handled)
             return;
 
         args.Handled = true;
-        if (ent.Comp.Armed)
-        {
-            var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
-            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-already-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))), ent, args.User, PopupType.LargeCaution);
-            return;
-        }
-
-        if (ent.Comp.Activating)
-        {
-            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-already-activating"), ent, args.User, PopupType.MediumCaution);
-            return;
-        }
-
         if (!_access.IsAllowed(args.User, ent))
         {
             _popup.PopupClient(Loc.GetString("mriya-nuke-popup-officer-activation-required"), ent, args.User, PopupType.MediumCaution);
             return;
         }
 
-        if (!Transform(ent).Anchored)
-        {
-            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-anchor-before-activation"), ent, args.User, PopupType.MediumCaution);
-            return;
-        }
+        _ui.OpenUi(ent.Owner, MriyaRMCNuclearChargeUiKey.Key, args.User);
+        UpdateUi(ent);
+    }
 
-        if (!HasAuthenticationDisk(ent))
-        {
-            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-disk-before-activation"), ent, args.User, PopupType.MediumCaution);
-            return;
-        }
+    private bool TryStartActivation(Entity<MriyaRMCNuclearChargeComponent> ent, EntityUid user)
+    {
+        if (!ValidateActivation(ent, user))
+            return false;
 
-        if (!IsChargeAuthorizationComplete())
+        var ev = new MriyaNukeActivateDoAfterEvent
         {
-            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-decryption-required"), ent, args.User, PopupType.MediumCaution);
-            return;
-        }
+            Sequence = ++ent.Comp.ActivationSequence,
+        };
 
-        var ev = new MriyaNukeActivateDoAfterEvent();
-        var doAfter = new DoAfterArgs(EntityManager, args.User, ent.Comp.ActivationDelay, ev, ent, target: ent)
+        var doAfter = new DoAfterArgs(EntityManager, user, ent.Comp.ActivationDelay, ev, ent, target: ent)
         {
             BreakOnMove = true,
             BreakOnDamage = true,
@@ -221,20 +233,77 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         };
 
         if (!_doAfter.TryStartDoAfter(doAfter))
-            return;
+            return false;
 
         ent.Comp.Activating = true;
-        _popup.PopupClient(Loc.GetString("mriya-nuke-popup-activation-started"), ent, args.User, PopupType.LargeCaution);
+        EnsureLaunchAnchor(ent);
+        UpdateMarkerLock(ent.Owner, ent.Comp);
+        UpdateUi(ent);
+        _popup.PopupClient(Loc.GetString("mriya-nuke-popup-activation-started"), ent, user, PopupType.LargeCaution);
+        return true;
+    }
+
+    private bool ValidateActivation(Entity<MriyaRMCNuclearChargeComponent> ent, EntityUid user)
+    {
+        if (ent.Comp.Armed)
+        {
+            var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-already-armed", ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds)))), ent, user, PopupType.LargeCaution);
+            return false;
+        }
+
+        if (ent.Comp.Activating)
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-already-activating"), ent, user, PopupType.MediumCaution);
+            return false;
+        }
+
+        if (!_access.IsAllowed(user, ent))
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-officer-activation-required"), ent, user, PopupType.MediumCaution);
+            return false;
+        }
+
+        if (!Transform(ent).Anchored)
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-anchor-before-activation"), ent, user, PopupType.MediumCaution);
+            return false;
+        }
+
+        if (!HasAuthenticationDisk(ent))
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-disk-before-activation"), ent, user, PopupType.MediumCaution);
+            return false;
+        }
+
+        if (!IsChargeAuthorizationComplete())
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-decryption-required"), ent, user, PopupType.MediumCaution);
+            return false;
+        }
+
+        if (!IsChargeOnOperationalMap(ent.Owner))
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-operational-map-required"), ent, user, PopupType.MediumCaution);
+            return false;
+        }
+
+        return true;
     }
 
     private void OnActivateDoAfter(Entity<MriyaRMCNuclearChargeComponent> ent, ref MriyaNukeActivateDoAfterEvent args)
     {
-        ent.Comp.Activating = false;
-
         if (args.Handled)
             return;
 
         args.Handled = true;
+        if (args.Sequence != ent.Comp.ActivationSequence)
+            return;
+
+        ent.Comp.Activating = false;
+        UpdateMarkerLock(ent.Owner, ent.Comp);
+        UpdateUi(ent);
+
         if (args.Cancelled)
         {
             _popup.PopupClient(Loc.GetString("mriya-nuke-popup-activation-interrupted"), ent, args.User, PopupType.MediumCaution);
@@ -250,6 +319,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
             return;
         }
 
+        if (!IsChargeOnOperationalMap(ent.Owner))
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-operational-map-required"), ent, args.User, PopupType.MediumCaution);
+            return;
+        }
+
         if (!Transform(ent).Anchored || !HasAuthenticationDisk(ent))
         {
             _popup.PopupClient(Loc.GetString("mriya-nuke-popup-final-check-failed"), ent, args.User, PopupType.MediumCaution);
@@ -257,15 +332,50 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         }
 
         ent.Comp.Armed = true;
+        ent.Comp.ThemeStarted = false;
+        ent.Comp.AnnouncedAtSeconds.Clear();
         ent.Comp.DetonatesAt = _timing.CurTime + ent.Comp.DetonationDelay;
+        EnsureLaunchAnchor(ent);
+        UpdateMarkerLock(ent.Owner, ent.Comp);
+        UpdateUi(ent);
         var seconds = Math.Max(0, (int) ent.Comp.DetonationDelay.TotalSeconds);
         Announce(Loc.GetString("mriya-nuke-armed", ("remaining", FormatRemaining(seconds))));
         AnnounceXenos(Loc.GetString("mriya-nuke-xeno-armed", ("remaining", FormatRemainingUkrainian(seconds))));
     }
 
+    private void AbortLaunch(Entity<MriyaRMCNuclearChargeComponent> ent, EntityUid user)
+    {
+        if (!_access.IsAllowed(user, ent))
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-officer-activation-required"), ent, user, PopupType.MediumCaution);
+            return;
+        }
+
+        if (!ent.Comp.Armed && !ent.Comp.Activating)
+        {
+            _popup.PopupClient(Loc.GetString("mriya-nuke-popup-not-active"), ent, user, PopupType.MediumCaution);
+            return;
+        }
+
+        ent.Comp.ActivationSequence++;
+        ent.Comp.Armed = false;
+        ent.Comp.Activating = false;
+        ent.Comp.ThemeStarted = false;
+        ent.Comp.DetonatesAt = default;
+        ent.Comp.AnnouncedAtSeconds.Clear();
+        StopWarningSiren(ent.Comp);
+        StopWarheadTheme(ent.Comp);
+        UpdateMarkerLock(ent.Owner, ent.Comp);
+        UpdateUi(ent);
+
+        _popup.PopupClient(Loc.GetString("mriya-nuke-popup-aborted"), ent, user, PopupType.LargeCaution);
+        Announce(Loc.GetString("mriya-nuke-aborted"));
+        AnnounceXenos(Loc.GetString("mriya-nuke-xeno-aborted"));
+    }
+
     private void OnUnanchorAttempt(Entity<MriyaRMCNuclearChargeComponent> ent, ref UnanchorAttemptEvent args)
     {
-        if (!ent.Comp.Armed)
+        if (!ent.Comp.Armed && !ent.Comp.Activating && !ent.Comp.Detonated)
             return;
 
         args.Cancel();
@@ -326,8 +436,11 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         ent.Comp.Destroyed = true;
         ent.Comp.Armed = false;
         ent.Comp.Activating = false;
+        ent.Comp.ActivationSequence++;
         StopWarningSiren(ent.Comp);
         StopWarheadTheme(ent.Comp);
+        UpdateMarkerLock(ent.Owner, ent.Comp);
+        UpdateUi(ent);
         Announce(Loc.GetString("mriya-nuke-defused"));
         AnnounceXenos(Loc.GetString("mriya-nuke-xeno-defused"));
         QueueDel(ent);
@@ -373,7 +486,12 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     private void StartDetonation(EntityUid uid, MriyaRMCNuclearChargeComponent charge, TransformComponent xform)
     {
         charge.Detonated = true;
+        charge.Activating = false;
+        charge.ActivationSequence++;
         charge.NukeMapAt = _timing.CurTime + charge.MapKillDelay;
+        EnsureLaunchAnchor((uid, charge));
+        UpdateMarkerLock(uid, charge);
+        UpdateUi((uid, charge));
 
         var coordinates = _transform.GetMapCoordinates(uid, xform);
         Announce(Loc.GetString("mriya-nuke-detonated"));
@@ -416,10 +534,95 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         charge.WarheadThemeStream = _audio.Stop(charge.WarheadThemeStream);
     }
 
+    private void UpdateUi(Entity<MriyaRMCNuclearChargeComponent> ent)
+    {
+        if (!_ui.HasUi(ent.Owner, MriyaRMCNuclearChargeUiKey.Key))
+            return;
+
+        _ui.SetUiState(ent.Owner, MriyaRMCNuclearChargeUiKey.Key, GetUiState(ent));
+    }
+
+    private MriyaRMCNuclearChargeBuiState GetUiState(Entity<MriyaRMCNuclearChargeComponent> ent)
+    {
+        return new MriyaRMCNuclearChargeBuiState(
+            GetUiStatus(ent),
+            CanStartActivation(ent),
+            ent.Comp.Armed || ent.Comp.Activating);
+    }
+
+    private string GetUiStatus(Entity<MriyaRMCNuclearChargeComponent> ent)
+    {
+        if (ent.Comp.Destroyed)
+            return Loc.GetString("mriya-nuke-ui-status-destroyed");
+
+        if (ent.Comp.Detonated)
+            return Loc.GetString("mriya-nuke-ui-status-detonated");
+
+        if (ent.Comp.Armed)
+        {
+            var remaining = ent.Comp.DetonatesAt - _timing.CurTime;
+            return Loc.GetString("mriya-nuke-ui-status-armed",
+                ("remaining", FormatRemaining(Math.Max(0, (int) remaining.TotalSeconds))));
+        }
+
+        if (ent.Comp.Activating)
+            return Loc.GetString("mriya-nuke-ui-status-activating");
+
+        if (!Transform(ent).Anchored)
+            return Loc.GetString("mriya-nuke-ui-status-not-anchored");
+
+        if (!HasAuthenticationDisk(ent))
+            return Loc.GetString("mriya-nuke-ui-status-no-disk");
+
+        if (!IsChargeAuthorizationComplete())
+            return Loc.GetString("mriya-nuke-ui-status-no-decryption");
+
+        if (!IsChargeOnOperationalMap(ent.Owner))
+            return Loc.GetString("mriya-nuke-ui-status-wrong-map");
+
+        return Loc.GetString("mriya-nuke-ui-status-ready");
+    }
+
+    private bool CanStartActivation(Entity<MriyaRMCNuclearChargeComponent> ent)
+    {
+        return !ent.Comp.Destroyed &&
+               !ent.Comp.Detonated &&
+               !ent.Comp.Armed &&
+               !ent.Comp.Activating &&
+               Transform(ent).Anchored &&
+               HasAuthenticationDisk(ent) &&
+               IsChargeAuthorizationComplete() &&
+               IsChargeOnOperationalMap(ent.Owner);
+    }
+
+    private void UpdateMarkerLock(EntityUid uid, MriyaRMCNuclearChargeComponent charge)
+    {
+        if (!TryComp(uid, out MriyaRMCNuclearChargeMarkerComponent? marker))
+            return;
+
+        var activeLocked = charge.Armed || charge.Activating || charge.Detonated;
+        _mriyaNukeShared.SetActiveLocked((uid, marker), activeLocked);
+    }
+
+    private void EnsureLaunchAnchor(Entity<MriyaRMCNuclearChargeComponent> ent)
+    {
+        var xform = Transform(ent);
+        if (xform.Anchored)
+            return;
+
+        _transform.AnchorEntity((ent.Owner, xform));
+    }
+
     private bool HasAuthenticationDisk(Entity<MriyaRMCNuclearChargeComponent> ent)
     {
         return _itemSlots.TryGetSlot(ent.Owner, ent.Comp.DiskSlotId, out var slot) &&
                slot.HasItem;
+    }
+
+    private bool IsChargeOnOperationalMap(EntityUid uid)
+    {
+        return TryComp(uid, out TransformComponent? xform) &&
+               _rmcPlanet.IsOnPlanet(xform);
     }
 
     private bool IsChargeAuthorizationComplete()

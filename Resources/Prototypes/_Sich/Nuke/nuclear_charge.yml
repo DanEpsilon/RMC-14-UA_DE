@@ -85,5 +85,9 @@
   - type: ContainerContainer
     containers:
       mriya-rmc-nuke-disk: !type:ContainerSlot
+  - type: UserInterface
+    interfaces:
+      enum.MriyaRMCNuclearChargeUiKey.Key:
+        type: MriyaRMCNuclearChargeBoundUserInterface
   - type: MriyaRMCNuclearChargeMarker
   - type: MriyaRMCNuclearCharge

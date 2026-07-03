@@ -2,7 +2,7 @@ using Robust.Shared.Audio;
 
 namespace Content.Server._Sich.Nuke;
 
-[RegisterComponent, Access(typeof(MriyaRMCNuclearChargeSystem))]
+[RegisterComponent, Access(typeof(MriyaRMCNuclearChargeSystem), typeof(MriyaNukeCommand))]
 public sealed partial class MriyaRMCNuclearChargeComponent : Component
 {
     /// <summary>
@@ -107,6 +107,11 @@ public sealed partial class MriyaRMCNuclearChargeComponent : Component
     /// Whether the final music cue has already started.
     /// </summary>
     public bool ThemeStarted;
+
+    /// <summary>
+    /// Incremented whenever a new activation sequence starts or is invalidated.
+    /// </summary>
+    public int ActivationSequence;
 
     /// <summary>
     /// Game time at which the charge detonates.

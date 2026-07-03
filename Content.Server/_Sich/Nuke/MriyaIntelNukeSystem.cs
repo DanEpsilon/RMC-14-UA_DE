@@ -89,9 +89,10 @@ public sealed class MriyaIntelNukeSystem : EntitySystem
             if (comp.Stage == MriyaIntelNukeStage.Decoding)
             {
                 comp.Stage = MriyaIntelNukeStage.WaitingForTowers;
-                var percent = GetDecodePercent(comp);
-                Announce(Loc.GetString("mriya-nuke-decryption-paused", ("percent", percent)));
-                AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-paused", ("percent", percent)));
+                comp.DecodeProgress = TimeSpan.Zero;
+                comp.DecodeAnnouncedAtSeconds.Clear();
+                Announce(Loc.GetString("mriya-nuke-decryption-paused", ("percent", 0)));
+                AnnounceXenos(Loc.GetString("mriya-nuke-xeno-decryption-paused", ("percent", 0)));
             }
 
             AnnounceTowerStatusIfNeeded(comp, activeTowers, time);
