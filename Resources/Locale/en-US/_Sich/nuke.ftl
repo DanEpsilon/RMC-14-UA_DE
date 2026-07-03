@@ -10,54 +10,54 @@ mriya-nuke-time-ukrainian-second-one = секунда
 mriya-nuke-time-ukrainian-second-few = секунди
 mriya-nuke-time-ukrainian-second-many = секунд
 
-mriya-intel-tech-nuclear-charge-name = Стратегічний ядерний заряд
-mriya-intel-tech-nuclear-charge-description = Ядерний фугасний заряд Франко-Вестонської виробничої лінії. Потребує декодування через дві вежі зв'язку та доступний після 90 хвилин операції.
+mriya-intel-tech-nuclear-charge-name = Ядерне рішення
+mriya-intel-tech-nuclear-charge-description = Ядерний фугасний заряд Франко-Вестонської виробничої лінії. Дозволено використовувати лише після 90 хвилин безуспішої операції.
 mriya-intel-tech-announcement-nuclear-charge = Стратегічний ядерний заряд санкціоновано. Ядерний фугасний актив буде передано логістиці через АТСС.
 
 mriya-nuke-intel-fragments-recovered = Фрагменти ядерної авторизації отримано. Утримуйте дві вежі зв'язку, щоб розпочати декодування.
-mriya-nuke-decryption-paused = Контроль над вежами зв'язку втрачено. Прогрес декодування ядерного заряду скинуто до {$percent}%.
-mriya-nuke-decryption-resumed = Дві вежі зв'язку під контролем морпіхів. Декодування ядерного заряду розпочато, завершення через {$remaining}.
+mriya-nuke-decryption-paused = Контроль над вежами зв'язку перервано. Прогрес декодування ядерного заряду зірвано до {$percent}%.
+mriya-nuke-decryption-resumed = Дві вежі зв'язку під контролем союзних сил. Декодування ядерного заряду розпочато, завершення через {$remaining}.
 mriya-nuke-decryption-waiting-towers = Декодування ядерного заряду очікує контролю веж зв'язку: {$active}/{$required}.
 mriya-nuke-decryption-progress = Декодування ядерного заряду: {$percent}%. Залишилось {$remaining}.
-mriya-nuke-decryption-complete = Декодування завершено. Протокол запуску стратегічного ядерного заряду авторизовано.
-mriya-nuke-decryption-complete-missing-option = Декодування ядерного боєзаряду завершено, але відповідний пункт технологій для стратегічного ядерного заряду не знайдено.
+mriya-nuke-decryption-complete = Декодування завершено. Стратегічний ядерний заряд авторизовано для запуску.
+mriya-nuke-decryption-complete-missing-option = Декодування ядерного боєзаряду завершено, але обмежено умовами технологічного рівня.
 
 mriya-nuke-xeno-intel-fragments-recovered = Верховна Королева попереджає: ворог відновлює Винищувача-вуликів через вухо-вежі. Зірвіть контроль над ними.
-mriya-nuke-xeno-decryption-paused = Зв'язок із вухо-вежами порушено. Формування Винищувача-вуликів скинуто до {$percent}%. Поверніть вежі Вулику.
+mriya-nuke-xeno-decryption-paused = Зв'язок із вухо-вежами порушено. Формування Винищувача-вуликів скинуто до {$percent}%. Не дайте інкубаторам відновити контроль над вежами.
 mriya-nuke-xeno-decryption-resumed = Ворог утримує дві вухо-вежі. Формування Винищувача-вуликів розпочато, завершення через {$remaining}.
-mriya-nuke-xeno-decryption-waiting-towers = Формування Винищувача-вуликів очікує живлення через вухо-вежі: {$active}/{$required} під контролем ворога.
+mriya-nuke-xeno-decryption-waiting-towers = Формування Винищувача-вуликів очікує живлення через вухо-вежі: {$active}/{$required} під контролем інкубаторів.
 mriya-nuke-xeno-decryption-progress = Формування Винищувача-вуликів: {$percent}%. Залишилось {$remaining}.
-mriya-nuke-xeno-decryption-complete = Формування Винищувача-вуликів завершено. Ворог може доставити заряд через свою логістику. Знищте боєголовку до активації.
+mriya-nuke-xeno-decryption-complete = Формування Винищувача-вуликів завершено. Знищте цей пристрій до його активації.
 
 mriya-nuke-detonation-countdown = Ядерний фугасний заряд детонує через {$remaining}.
-mriya-nuke-armed = Ядерний фугасний заряд активовано. Орієнтовна детонація через {$remaining}. Евакуюйтеся з операційної зони.
-mriya-nuke-aborted = Протокол ядерного заряду скасовано. Транспортне блокування знято.
-mriya-nuke-defused = Фізично неможливо синхронізовано активувати боєзапас у зв'язку зі значними фізичними пошкодженнями систем запуску.
-mriya-nuke-detonated = Детонацію ядерного фугасного заряду зафіксовано. Виконується протокол стратегічного заперечення зони.
+mriya-nuke-armed = Ядерний фугасний заряд активовано. Орієнтовна детонація через {$remaining}. Розпочинайте процес евакуації з операційної зони.
+mriya-nuke-aborted = Здійснено аборт протоколу запуску ядерного заряду.
+mriya-nuke-defused = Увага, значні фізичні пошкодження унеможливлюють відповідну синхронну фізичну детонацію заряду. Заряд класифікується як знищений.
+mriya-nuke-detonated = Зафіксовано детонацію ядерного боєзаряду в зоні операції. Виконується протокол заперечення зони. Виліт в зону операції обмежено.
 
 mriya-nuke-xeno-detonation-countdown = Винищувач-вуликів вибухне за {$remaining}.
-mriya-nuke-xeno-armed = Верховна Королева попереджає: Винищувач-вуликів активовано. До вибуху лишається {$remaining}.
-mriya-nuke-xeno-aborted = Верховна Королева повідомляє: Винищувач-вуликів зупинено до детонації.
-mriya-nuke-xeno-defused = Верховна Королева повідомляє: Винищувач-вуликів знешкоджено. Боєголовка більше не становить загрози для Вулика.
-mriya-nuke-xeno-detonated = Верховна Королева попереджає: Винищувач-вуликів детонував. Вулик має покинути приречену зону.
+mriya-nuke-xeno-armed = Інкубатори активували винищувач-вуликів. До його детонації лишається {$remaining}.
+mriya-nuke-xeno-aborted = Інкубатори зупинили процеси пристрою винищувача-вуликів.
+mriya-nuke-xeno-defused = Винищувач-вуликів знешкоджено. Пристрій більше не загрожує вулику.
+mriya-nuke-xeno-detonated = Процеси винищувачу-вуликів завершено. Розум вашого вулика перенесено в підсвідомість верховного вулика. Виживші доньки, продовжуйте супротив будь якою ціною.
 
 mriya-nuke-ui-title = Протокол ядерного заряду
-mriya-nuke-ui-start = Запустити
-mriya-nuke-ui-abort = Скасувати
+mriya-nuke-ui-start = Пуск
+mriya-nuke-ui-abort = Аборт
 mriya-nuke-ui-status-armed = [color=red][bold]Протокол детонації активний.[/bold][/color]\nДетонація через {$remaining}.
 mriya-nuke-ui-status-activating = [color=yellow][bold]Вводиться послідовність запуску.[/bold][/color]\nНе рухайте заряд і не від'єднуйте диск.
 mriya-nuke-ui-status-ready = [color=green][bold]Заряд готовий до запуску.[/bold][/color]\nПідтвердіть старт протоколу після евакуації.
 mriya-nuke-ui-status-not-anchored = [color=yellow]Закріпіть заряд до підлоги.[/color]
 mriya-nuke-ui-status-no-disk = [color=yellow]Вставте диск ядерної автентифікації.[/color]
-mriya-nuke-ui-status-no-decryption = [color=yellow]Декодування протоколу не завершено.[/color]
-mriya-nuke-ui-status-wrong-map = [color=yellow]Запуск дозволено лише в планетарній операційній зоні.[/color]
+mriya-nuke-ui-status-no-decryption = [color=yellow]Декодування кодів протоколу не завершено.[/color]
+mriya-nuke-ui-status-wrong-map = [color=yellow]Запуск розблоковано виключно в планетарній операційній зоні.[/color]
 mriya-nuke-ui-status-destroyed = [color=red]Боєзаряд знешкоджено.[/color]
-mriya-nuke-ui-status-detonated = [color=red]Детонація вже розпочалася.[/color]
+mriya-nuke-ui-status-detonated = [color=red]Детонація.[/color]
 
 mriya-nuke-examine-armed = [color=red]Заряд активовано. Орієнтовна детонація через {$remaining}.[/color]
 mriya-nuke-examine-activating = [color=yellow]Послідовність активації заряду вводиться.[/color]
-mriya-nuke-examine-disk-inserted = [color=cyan]Заряд закріплено, диск ядерної автентифікації вставлено.[/color]
-mriya-nuke-examine-ready = [color=cyan]Закріпіть заряд, вставте диск ядерної автентифікації, а потім використайте заряд у руці, щоб відкрити протокол запуску.[/color]
+mriya-nuke-examine-disk-inserted = [color=cyan]Заряд закріплено, диск автентифікаційних кодів розпізнано.[/color]
+mriya-nuke-examine-ready = [color=cyan]Закріпіть заряд, вставте диск ядерної автентифікації, а потім використайте заряд, щоб відкрити протокол запуску.[/color]
 
 mriya-nuke-popup-port-locked = Порт автентифікації заблоковано, доки ядерний протокол активний.
 mriya-nuke-popup-wrong-disk = Заряд приймає лише диск ядерної автентифікації.
