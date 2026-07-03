@@ -547,7 +547,8 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         return new MriyaRMCNuclearChargeBuiState(
             GetUiStatus(ent),
             CanStartActivation(ent),
-            ent.Comp.Armed || ent.Comp.Activating);
+            ent.Comp.Armed || ent.Comp.Activating,
+            ent.Comp.Armed ? ent.Comp.DetonatesAt : null);
     }
 
     private string GetUiStatus(Entity<MriyaRMCNuclearChargeComponent> ent)

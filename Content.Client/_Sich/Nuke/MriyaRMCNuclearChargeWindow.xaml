@@ -11,7 +11,9 @@
                                    BorderThickness="2" />
         </PanelContainer.PanelOverride>
         <BoxContainer Orientation="Vertical" Margin="10" HorizontalExpand="True" VerticalExpand="True">
-            <RichTextLabel Name="StatusLabel" MinHeight="115" HorizontalExpand="True" VerticalExpand="True" />
+            <RichTextLabel Name="StatusLabel" MinHeight="42" HorizontalExpand="True" />
+            <RichTextLabel Name="CountdownLabel" MinHeight="64" HorizontalExpand="True" Margin="0 8 0 0" />
+            <Control Name="StatusSpacer" VerticalExpand="True" />
             <BoxContainer Orientation="Horizontal" HorizontalExpand="True" Margin="0 8 0 0">
                 <Button Name="StartButton" Text="{Loc 'mriya-nuke-ui-start'}" HorizontalExpand="True" Margin="0 0 4 0" />
                 <Button Name="AbortButton" Text="{Loc 'mriya-nuke-ui-abort'}" HorizontalExpand="True" Margin="4 0 0 0" />
