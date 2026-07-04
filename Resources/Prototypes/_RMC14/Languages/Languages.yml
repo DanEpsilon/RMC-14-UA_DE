@@ -199,8 +199,8 @@
 
 - type: language
   id: Scandinavian
-  name: "Scandinavian"
-  description: "An old Earth language."
+  name: "Скандинавська"
+  description: "Стара мова планети Земля. Хей, Фрун!"
   isVisibleLanguage: true
   typefaceId: DefaultBold
   textSize: null

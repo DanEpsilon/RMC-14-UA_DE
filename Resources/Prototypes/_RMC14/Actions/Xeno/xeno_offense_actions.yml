@@ -438,7 +438,7 @@
   parent: ActionXenoSpit
   components:
   - type: Action
-    useDelay: 1.5 # Sich. 2 в оригіналі
+    useDelay: 2
 
 - type: entity
   parent: CMGuidebookActionXenoBase
