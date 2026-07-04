@@ -80,8 +80,8 @@
         amount: 1 # Sich. 2 в оригіналі
       - id: RMCCaseFlamer
         amount: 2
-#      - id: RMCM85A1Case – Mriya. Тимчасове видалення гранатометів
-#        amount: 3
+      - id: RMCM85A1Case
+        amount: 3
       - id: RMCGunCasePistolM13
         amount: 3
       - id: RMCXM51Case
