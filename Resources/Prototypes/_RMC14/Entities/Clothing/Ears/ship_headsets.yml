@@ -382,7 +382,7 @@
     - Synthetic
     # Mriya end
     - MilitaryWarden
-    #- ProvostInspector – Mriya
+    #- ProvostInspector – MR
 
 - type: entity
   parent: CMHeadsetCMP
@@ -401,7 +401,7 @@
     - SeniorEnlistedAdvisor
     - Synthetic
     # Mriya end
-    #- ProvostInspector – Mriya
+    #- ProvostInspector – MR
 
 - type: entity
   parent: RMCHeadsetShip

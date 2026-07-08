@@ -131,7 +131,7 @@
     ventCrawlIcon: lesser
   - type: RMCActionOrder
     id: CMXenoLesserDrone
-#  - type: ExcludedFromKingVote – Mriya
+#  - type: ExcludedFromKingVote – MR
   - type: MindTakeoverBehavior
     ejectFromLarvaQueues: false
   - type: RemoveComponents
