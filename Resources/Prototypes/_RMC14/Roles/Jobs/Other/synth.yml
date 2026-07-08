@@ -84,7 +84,7 @@
           Blunt: 35
     - type: Synth
     - type: RMCTrackable # Mriya
-#  hidden: true – Mriya
+#  hidden: true – MR
 
 - type: startingGear
   id: RMCGearSyntheticEquipped
