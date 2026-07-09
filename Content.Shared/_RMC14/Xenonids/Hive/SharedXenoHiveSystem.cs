@@ -429,6 +429,7 @@ public abstract class SharedXenoHiveSystem : EntitySystem
         SetHiveBurrowedLarva(hive, hive.Comp.BurrowedLarva + amount);
     }
 
+    // Mriya. Nuclear cleanup deletes tunnel entities and must detach them from hive tunnel lists.
     public void RemoveTunnelFromHiveLists(EntityUid tunnel)
     {
         var hives = EntityQueryEnumerator<HiveComponent>();

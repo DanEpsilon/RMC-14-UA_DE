@@ -1,8 +1,7 @@
 using Content.Server._RMC14.Announce;
 using Content.Server._RMC14.Explosion;
-using Content.Server.RoundEnd;
 using Content.Shared.Access.Systems;
-using Content.Shared._Sich.Nuke;
+using Content.Shared._Mriya.Nuke;
 using Content.Shared._RMC14.Marines.Announce;
 using Content.Shared._RMC14.Rules;
 using Content.Shared._RMC14.Xenonids.Projectile;
@@ -12,6 +11,7 @@ using Content.Shared.Damage;
 using Content.Shared.Destructible;
 using Content.Shared.DoAfter;
 using Content.Shared.Examine;
+using Content.Shared.GameTicking;
 using Content.Shared.GameTicking.Components;
 using Content.Shared.Interaction;
 using Content.Shared.Projectiles;
@@ -23,7 +23,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Player;
 using Robust.Shared.Timing;
 
-namespace Content.Server._Sich.Nuke;
+namespace Content.Server._Mriya.Nuke;
 
 public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
 {
@@ -37,19 +37,20 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     [Dependency] private readonly MriyaRMCNukeSystem _mriyaNuke = default!;
     [Dependency] private readonly MriyaRMCNuclearChargeSharedSystem _mriyaNukeShared = default!;
     [Dependency] private readonly RMCPlanetSystem _rmcPlanet = default!;
-    [Dependency] private readonly RoundEndSystem _roundEnd = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly XenoAnnounceSystem _xenoAnnounce = default!;
 
     private static readonly int[] AnnouncementThresholds = [300, 180, 60, 30, 10];
-    private static readonly TimeSpan ThemeLeadTime = TimeSpan.FromSeconds(46);
+    private static readonly TimeSpan ThemeDetonationCueTime = TimeSpan.FromSeconds(46);
+    private readonly HashSet<MapId> _finalizedNukedMaps = new();
 
     public override void Initialize()
     {
         base.Initialize();
 
+        SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestartCleanup);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, ExaminedEvent>(OnExamined);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, ItemSlotInsertAttemptEvent>(OnItemSlotInsertAttempt);
         SubscribeLocalEvent<MriyaRMCNuclearChargeComponent, ItemSlotEjectAttemptEvent>(OnItemSlotEjectAttempt);
@@ -90,8 +91,7 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
                 if (_timing.CurTime < charge.NukeMapAt)
                     continue;
 
-                _mriyaNuke.NukeMap(xform.MapID);
-                EndRoundMinorMarineVictory();
+                FinalizeNuclearDetonation(xform.MapID);
                 QueueDel(uid);
                 continue;
             }
@@ -115,7 +115,7 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
                     StartWarningSiren(charge, xform.MapID);
             }
 
-            if (!charge.ThemeStarted && remaining <= ThemeLeadTime)
+            if (!charge.ThemeStarted && remaining <= ThemeDetonationCueTime)
             {
                 charge.ThemeStarted = true;
                 charge.WarheadThemeStream = _audio.PlayGlobal(charge.WarheadThemeSound, Filter.Broadcast(), true, charge.WarheadThemeSound.Params)?.Entity;
@@ -126,6 +126,11 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
 
             StartDetonation(uid, charge, xform);
         }
+    }
+
+    private void OnRoundRestartCleanup(RoundRestartCleanupEvent ev)
+    {
+        _finalizedNukedMaps.Clear();
     }
 
     private void OnExamined(Entity<MriyaRMCNuclearChargeComponent> ent, ref ExaminedEvent args)
@@ -425,7 +430,8 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     private void OnTerminating(Entity<MriyaRMCNuclearChargeComponent> ent, ref EntityTerminatingEvent args)
     {
         StopWarningSiren(ent.Comp);
-        StopWarheadTheme(ent.Comp);
+        if (!ent.Comp.Detonated)
+            StopWarheadTheme(ent.Comp);
     }
 
     private void DefuseDestroyedCharge(Entity<MriyaRMCNuclearChargeComponent> ent)
@@ -494,14 +500,15 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         UpdateUi((uid, charge));
 
         var coordinates = _transform.GetMapCoordinates(uid, xform);
+        MarkNuclearDetonationStarted();
         Announce(Loc.GetString("mriya-nuke-detonated"));
         AnnounceXenos(Loc.GetString("mriya-nuke-xeno-detonated"));
 
         StopWarningSiren(charge);
-        StopWarheadTheme(charge);
         _audio.PlayGlobal(charge.MapExplosionSound, Filter.BroadcastMap(coordinates.MapId), true);
         _audio.PlayGlobal(charge.FlybyExplosionSound, GetAwayFromMapFilter(coordinates.MapId), true);
-        _mriyaNuke.NukeMap(coordinates.MapId);
+        _mriyaNuke.DamageMap(coordinates.MapId);
+        Timer.Spawn(charge.MapKillDelay, () => FinalizeNuclearDetonation(coordinates.MapId));
 
         _rmcExplosion.QueueExplosion(
             coordinates,
@@ -659,21 +666,32 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
                xform.MapID != mapId;
     }
 
-    private void EndRoundMinorMarineVictory()
+    private void MarkNuclearDetonationStarted()
     {
-        var ended = false;
         var query = EntityQueryEnumerator<CMDistressSignalRuleComponent, GameRuleComponent>();
         while (query.MoveNext(out var uid, out var distress, out _))
         {
-            if (distress.Result is not null and not DistressSignalRuleResult.None)
-                continue;
-
-            distress.Result = DistressSignalRuleResult.MinorMarineVictory;
+            distress.MriyaNuclearDetonationStarted = true;
             Dirty(uid, distress);
-            ended = true;
         }
+    }
 
-        if (ended)
-            _roundEnd.EndRound();
+    private void RequestRoundEndCheck()
+    {
+        var query = EntityQueryEnumerator<CMDistressSignalRuleComponent, GameRuleComponent>();
+        while (query.MoveNext(out var uid, out var distress, out _))
+        {
+            distress.NextCheck = _timing.CurTime;
+            Dirty(uid, distress);
+        }
+    }
+
+    private void FinalizeNuclearDetonation(MapId mapId)
+    {
+        if (!_finalizedNukedMaps.Add(mapId))
+            return;
+
+        _mriyaNuke.NukeMap(mapId);
+        RequestRoundEndCheck();
     }
 }

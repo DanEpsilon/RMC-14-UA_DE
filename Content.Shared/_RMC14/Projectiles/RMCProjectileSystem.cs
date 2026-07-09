@@ -198,6 +198,7 @@ public sealed class RMCProjectileSystem : EntitySystem
         Dirty(projectile);
     }
 
+    // Mriya. Use map coordinates so shots between shuttles and planet grids keep falloff and occlusion checks.
     private bool TryGetMapDistance(EntityCoordinates from, EntityCoordinates to, out float distance, out MapCoordinates fromMap, out MapCoordinates toMap)
     {
         fromMap = _transform.ToMapCoordinates(from);

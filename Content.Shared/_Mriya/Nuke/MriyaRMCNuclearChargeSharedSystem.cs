@@ -6,14 +6,14 @@ using Content.Shared.Popups;
 using Content.Shared.Tag;
 using Robust.Shared.Prototypes;
 
-namespace Content.Shared._Sich.Nuke;
+namespace Content.Shared._Mriya.Nuke;
 
 public sealed class MriyaRMCNuclearChargeSharedSystem : EntitySystem
 {
     [Dependency] private readonly SharedPopupSystem _popup = default!;
     [Dependency] private readonly TagSystem _tag = default!;
 
-    private static readonly ProtoId<TagPrototype> MriyaNukeDiskTag = "MriyaRMCNukeDisk";
+    private static readonly ProtoId<TagPrototype> MriyaNukeDiskTag = "MRNukeDisk";
 
     public override void Initialize()
     {

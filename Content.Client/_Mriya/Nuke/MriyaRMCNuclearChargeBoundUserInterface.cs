@@ -1,8 +1,8 @@
-using Content.Shared._Sich.Nuke;
+using Content.Shared._Mriya.Nuke;
 using JetBrains.Annotations;
 using Robust.Client.UserInterface;
 
-namespace Content.Client._Sich.Nuke;
+namespace Content.Client._Mriya.Nuke;
 
 [UsedImplicitly]
 public sealed class MriyaRMCNuclearChargeBoundUserInterface(EntityUid owner, Enum uiKey) : BoundUserInterface(owner, uiKey)

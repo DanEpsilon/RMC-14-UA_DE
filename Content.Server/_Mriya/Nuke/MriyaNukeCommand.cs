@@ -7,12 +7,12 @@ using Robust.Shared.IoC;
 using Robust.Shared.Timing;
 using Robust.Shared.Toolshed;
 
-namespace Content.Server._Sich.Nuke;
+namespace Content.Server._Mriya.Nuke;
 
 [ToolshedCommand, AdminCommand(AdminFlags.VarEdit)]
 public sealed class MriyaNukeCommand : ToolshedCommand
 {
-    private static readonly EntProtoId ChargePrototype = "MriyaRMCNuclearCharge";
+    private static readonly EntProtoId ChargePrototype = "MRNuclearCharge";
 
     [CommandImplementation("unlock")]
     public void Unlock(IInvocationContext context)

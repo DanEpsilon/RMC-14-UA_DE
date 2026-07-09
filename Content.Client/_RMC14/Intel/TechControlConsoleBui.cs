@@ -21,7 +21,8 @@ public sealed class TechControlConsoleBui : BoundUserInterface
     private TechControlConsoleWindow? _window;
     private TechControlConsoleOptionWindow? _optionWindow;
 
-    private static readonly EntProtoId MriyaNuclearChargePrototype = "MriyaRMCNuclearCharge";
+    // Mriya. The nuclear charge should stay visible in the tech tree while its round-time lock is active.
+    private static readonly EntProtoId MriyaNuclearChargePrototype = "MRNuclearCharge";
 
     private readonly SharedGameTicker _ticker;
     public TechControlConsoleBui(EntityUid owner, Enum uiKey) : base(owner, uiKey)

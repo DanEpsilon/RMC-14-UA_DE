@@ -1,7 +1,7 @@
 using Content.Shared.FixedPoint;
 using Robust.Shared.Prototypes;
 
-namespace Content.Server._Sich.Nuke;
+namespace Content.Server._Mriya.Nuke;
 
 [RegisterComponent, Access(typeof(MriyaIntelNukeSystem), typeof(MriyaNukeCommand))]
 public sealed partial class MriyaIntelNukeObjectiveComponent : Component
@@ -28,7 +28,7 @@ public sealed partial class MriyaIntelNukeObjectiveComponent : Component
     /// Prototype delivered by the authorized tech option.
     /// </summary>
     [DataField]
-    public EntProtoId ChargePrototype = "MriyaRMCNuclearCharge";
+    public EntProtoId ChargePrototype = "MRNuclearCharge";
 
     /// <summary>
     /// Current authorization state for the nuclear objective.

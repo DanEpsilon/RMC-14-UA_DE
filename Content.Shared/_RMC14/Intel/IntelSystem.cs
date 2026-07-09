@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Content.Shared._RMC14.Areas;
 using Content.Shared._RMC14.ARES;
 using Content.Shared._RMC14.ARES.Logs;
@@ -124,9 +124,10 @@ public sealed class IntelSystem : EntitySystem
     private static readonly EntProtoId TechnicalManualProto = "RMCIntelTechnicalManual";
     // private static readonly EntProtoId ResearchPaperProto = "RMCIntelResearchPaper";
     // private static readonly EntProtoId VialBoxProto = "RMCIntelVialBox";
-    private static readonly EntProtoId MriyaRMCNukeDiskProto = "MriyaRMCNukeDisk";
+    // Mriya. The nuclear protocol needs exactly one authentication disk seeded into colony intel.
+    private static readonly EntProtoId MRNukeDiskProto = "MRNukeDisk";
     private const string RMCNukeDiskPrototypeId = "RMCNukeDisk";
-    private const string MriyaRMCNukeDiskPrototypeId = "MriyaRMCNukeDisk";
+    private const string MRNukeDiskPrototypeId = "MRNukeDisk";
 
     private static readonly EntProtoId[] ExperimentalDeviceProtos =
     [
@@ -1349,14 +1350,14 @@ public sealed class IntelSystem : EntitySystem
         return items;
     }
 
-    private void EnsureSingleMriyaRMCNukeDisk()
+    private void EnsureSingleMRNukeDisk()
     {
         var disks = new List<EntityUid>();
         var legacyDisks = new List<EntityUid>();
         var diskQuery = EntityQueryEnumerator<NukeDiskComponent, MetaDataComponent>();
         while (diskQuery.MoveNext(out var uid, out _, out var metadata))
         {
-            if (metadata.EntityPrototype?.ID == MriyaRMCNukeDiskPrototypeId)
+            if (metadata.EntityPrototype?.ID == MRNukeDiskPrototypeId)
                 disks.Add(uid);
             else if (metadata.EntityPrototype?.ID == RMCNukeDiskPrototypeId)
                 legacyDisks.Add(uid);
@@ -1375,10 +1376,10 @@ public sealed class IntelSystem : EntitySystem
         if (disks.Count > 0)
             return;
 
-        SpawnMriyaRMCNukeDisk();
+        SpawnMRNukeDisk();
     }
 
-    private void SpawnMriyaRMCNukeDisk()
+    private void SpawnMRNukeDisk()
     {
         List<Entity<IntelSpawnerComponent>>? spawners = null;
         var type = _random.Pick(_diskChances);
@@ -1403,7 +1404,7 @@ public sealed class IntelSystem : EntitySystem
 
         var spawner = _random.Pick(spawners);
         var coords = _transform.GetMoverCoordinates(spawner);
-        var disk = Spawn(MriyaRMCNukeDiskProto, coords);
+        var disk = Spawn(MRNukeDiskProto, coords);
 
         _nearby.Clear();
         _entityLookup.GetEntitiesInRange(coords, 0.5f, _nearby, LookupFlags.Uncontained);
@@ -1481,7 +1482,7 @@ public sealed class IntelSystem : EntitySystem
             }
 
             var tree = EnsureTechTree();
-            EnsureSingleMriyaRMCNukeDisk();
+            EnsureSingleMRNukeDisk();
 
             var lows = SpawnIntel(PaperScrapProto, _paperScraps, _paperScrapChances);
             var reports = SpawnIntel(ProgressReportProto, _progressReports, _progressReportChances);

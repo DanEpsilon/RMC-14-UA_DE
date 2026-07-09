@@ -7,7 +7,7 @@ using Content.Shared.GameTicking;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
-namespace Content.Server._Sich.Nuke;
+namespace Content.Server._Mriya.Nuke;
 
 public sealed class MriyaIntelNukeSystem : EntitySystem
 {

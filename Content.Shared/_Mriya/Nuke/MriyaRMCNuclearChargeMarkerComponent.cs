@@ -1,6 +1,6 @@
 using Robust.Shared.GameStates;
 
-namespace Content.Shared._Sich.Nuke;
+namespace Content.Shared._Mriya.Nuke;
 
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 [Access(typeof(MriyaRMCNuclearChargeSharedSystem))]

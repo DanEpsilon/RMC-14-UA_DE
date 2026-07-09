@@ -1,6 +1,6 @@
 using Robust.Shared.Audio;
 
-namespace Content.Server._Sich.Nuke;
+namespace Content.Server._Mriya.Nuke;
 
 [RegisterComponent, Access(typeof(MriyaRMCNuclearChargeSystem), typeof(MriyaNukeCommand))]
 public sealed partial class MriyaRMCNuclearChargeComponent : Component
@@ -33,31 +33,31 @@ public sealed partial class MriyaRMCNuclearChargeComponent : Component
     /// Looping siren played on the affected map after the three-minute warning.
     /// </summary>
     [DataField]
-    public SoundSpecifier ThirtySecondWarningSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/30sec_nuke_warning.ogg", AudioParams.Default.WithVolume(-1).WithLoop(true));
+    public SoundSpecifier ThirtySecondWarningSound = new SoundPathSpecifier("/Audio/_Mriya/Nuke/30sec_nuke_warning.ogg", AudioParams.Default.WithVolume(-1).WithLoop(true));
 
     /// <summary>
     /// Global music cue started shortly before detonation.
     /// </summary>
     [DataField]
-    public SoundSpecifier WarheadThemeSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/warhead_theme.ogg", AudioParams.Default.WithVolume(0));
+    public SoundSpecifier WarheadThemeSound = new SoundPathSpecifier("/Audio/_Mriya/Nuke/warhead_theme.ogg", AudioParams.Default.WithVolume(0));
 
     /// <summary>
     /// Explosion sound heard by entities on the affected map.
     /// </summary>
     [DataField]
-    public SoundSpecifier MapExplosionSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/Nuke_explosion_map_sound.ogg", AudioParams.Default.WithVolume(2));
+    public SoundSpecifier MapExplosionSound = new SoundPathSpecifier("/Audio/_Mriya/Nuke/Nuke_explosion_map_sound.ogg", AudioParams.Default.WithVolume(2));
 
     /// <summary>
     /// Flyby explosion sound heard by entities away from the affected map.
     /// </summary>
     [DataField]
-    public SoundSpecifier FlybyExplosionSound = new SoundPathSpecifier("/Audio/_Sich/Nuke/Alamo_Flyby_Nukesoundeffect.ogg", AudioParams.Default.WithVolume(-1));
+    public SoundSpecifier FlybyExplosionSound = new SoundPathSpecifier("/Audio/_Mriya/Nuke/Alamo_Flyby_Nukesoundeffect.ogg", AudioParams.Default.WithVolume(-1));
 
     /// <summary>
     /// Explosion prototype used for the visual blast wave.
     /// </summary>
     [DataField]
-    public string ExplosionType = "MriyaNuke";
+    public string ExplosionType = "MRNuke";
 
     /// <summary>
     /// Total visual explosion intensity.

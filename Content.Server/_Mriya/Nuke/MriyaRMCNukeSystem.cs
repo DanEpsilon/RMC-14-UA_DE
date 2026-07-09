@@ -13,7 +13,7 @@ using Robust.Shared.Containers;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 
-namespace Content.Server._Sich.Nuke;
+namespace Content.Server._Mriya.Nuke;
 
 public sealed class MriyaRMCNukeSystem : EntitySystem
 {
@@ -26,8 +26,8 @@ public sealed class MriyaRMCNukeSystem : EntitySystem
     [Dependency] private readonly SensorTowerSystem _sensorTower = default!;
     [Dependency] private readonly RMCPowerSystem _power = default!;
 
-    // Strategic nuclear cleanup must kill even extreme health pools before fallback deletion runs.
-    private readonly DamageSpecifier _damage = new() { DamageDict = { ["Blunt"] = 1e10, ["Heat"] = 1e10 } };
+    // Strategic nuclear cleanup must stay below FixedPoint overflow while remaining lethal.
+    private readonly DamageSpecifier _damage = new() { DamageDict = { ["Blunt"] = 1e5, ["Heat"] = 1e5 } };
     private readonly HashSet<EntityUid> _gridContents = new();
     private EntityQuery<RMCRepairableComponent> _repairable;
 
@@ -122,6 +122,40 @@ public sealed class MriyaRMCNukeSystem : EntitySystem
                 continue;
 
             _power.FullyDestroy(new(uid, generator));
+        }
+    }
+
+    private void DamageEverythingOnMap(MapId mapId)
+    {
+        var toDamage = new HashSet<EntityUid>();
+        var ignoredForcedDeletes = new HashSet<EntityUid>();
+        var affectedGrids = GetAffectedGrids(mapId);
+
+        var living = EntityQueryEnumerator<DamageableComponent, TransformComponent>();
+        var vents = EntityQueryEnumerator<VentCrawlableComponent, TransformComponent>();
+        while (living.MoveNext(out var uid, out _, out var transform))
+        {
+            if (!IsInNukedArea(transform, mapId, affectedGrids))
+                continue;
+
+            toDamage.Add(uid);
+        }
+        while (vents.MoveNext(out var uid, out _, out var transform))
+        {
+            if (!IsInNukedArea(transform, mapId, affectedGrids))
+                continue;
+
+            toDamage.Add(uid);
+        }
+
+        AddAffectedGridMobs(affectedGrids, toDamage, ignoredForcedDeletes);
+
+        foreach (var uid in toDamage)
+        {
+            if (TerminatingOrDeleted(uid) || _entity.IsQueuedForDeletion(uid))
+                continue;
+
+            _damageable.TryChangeDamage(uid, _damage, true);
         }
     }
 
@@ -236,5 +270,10 @@ public sealed class MriyaRMCNukeSystem : EntitySystem
     {
         for (var i = 0; i < 3; i++)
             KillEverythingOnMap(mapId);
+    }
+
+    public void DamageMap(MapId mapId)
+    {
+        DamageEverythingOnMap(mapId);
     }
 }
