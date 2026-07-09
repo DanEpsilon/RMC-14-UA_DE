@@ -43,7 +43,9 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
     [Dependency] private readonly XenoAnnounceSystem _xenoAnnounce = default!;
 
     private static readonly int[] AnnouncementThresholds = [300, 180, 60, 30, 10];
-    private static readonly TimeSpan ThemeDetonationCueTime = TimeSpan.FromSeconds(46);
+    // The RMC explosion visual is queued after the server detonation tick, so start the theme
+    // slightly later to align its 46 second cue with the visible blast.
+    private static readonly TimeSpan ThemeStartLeadTime = TimeSpan.FromSeconds(44);
     private readonly HashSet<MapId> _finalizedNukedMaps = new();
 
     public override void Initialize()
@@ -115,7 +117,7 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
                     StartWarningSiren(charge, xform.MapID);
             }
 
-            if (!charge.ThemeStarted && remaining <= ThemeDetonationCueTime)
+            if (!charge.ThemeStarted && remaining <= ThemeStartLeadTime)
             {
                 charge.ThemeStarted = true;
                 charge.WarheadThemeStream = _audio.PlayGlobal(charge.WarheadThemeSound, Filter.Broadcast(), true, charge.WarheadThemeSound.Params)?.Entity;
@@ -505,6 +507,7 @@ public sealed partial class MriyaRMCNuclearChargeSystem : EntitySystem
         AnnounceXenos(Loc.GetString("mriya-nuke-xeno-detonated"));
 
         StopWarningSiren(charge);
+        charge.WarheadThemeStream = null;
         _audio.PlayGlobal(charge.MapExplosionSound, Filter.BroadcastMap(coordinates.MapId), true);
         _audio.PlayGlobal(charge.FlybyExplosionSound, GetAwayFromMapFilter(coordinates.MapId), true);
         _mriyaNuke.DamageMap(coordinates.MapId);
