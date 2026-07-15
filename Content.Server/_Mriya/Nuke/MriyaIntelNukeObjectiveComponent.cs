@@ -3,6 +3,9 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Server._Mriya.Nuke;
 
+/// <summary>
+/// Tracks the strategic nuclear charge authorization flow driven by intelligence points and communication tower control.
+/// </summary>
 [RegisterComponent, Access(typeof(MriyaIntelNukeSystem), typeof(MriyaNukeCommand))]
 public sealed partial class MriyaIntelNukeObjectiveComponent : Component
 {
@@ -61,6 +64,9 @@ public sealed partial class MriyaIntelNukeObjectiveComponent : Component
     public readonly HashSet<int> DecodeAnnouncedAtSeconds = new();
 }
 
+/// <summary>
+/// Current state of the strategic nuclear charge authorization objective.
+/// </summary>
 public enum MriyaIntelNukeStage
 {
     WaitingForIntel,

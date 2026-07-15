@@ -124,10 +124,12 @@ public sealed class IntelSystem : EntitySystem
     private static readonly EntProtoId TechnicalManualProto = "RMCIntelTechnicalManual";
     // private static readonly EntProtoId ResearchPaperProto = "RMCIntelResearchPaper";
     // private static readonly EntProtoId VialBoxProto = "RMCIntelVialBox";
-    // Mriya. The nuclear protocol needs exactly one authentication disk seeded into colony intel.
+
+    // Mriya start. The nuclear protocol needs exactly one authentication disk seeded into colony intel.
     private static readonly EntProtoId MRNukeDiskProto = "MRNukeDisk";
     private const string RMCNukeDiskPrototypeId = "RMCNukeDisk";
     private const string MRNukeDiskPrototypeId = "MRNukeDisk";
+    // Mriya end.
 
     private static readonly EntProtoId[] ExperimentalDeviceProtos =
     [
@@ -1350,6 +1352,7 @@ public sealed class IntelSystem : EntitySystem
         return items;
     }
 
+    // Mriya start. Replaces legacy nuke disks with one Mriya authentication disk in colony intel.
     private void EnsureSingleMRNukeDisk()
     {
         var disks = new List<EntityUid>();
@@ -1421,6 +1424,7 @@ public sealed class IntelSystem : EntitySystem
                 break;
         }
     }
+    // Mriya end.
 
     public Entity<IntelTechTreeComponent> EnsureTechTree()
     {
@@ -1482,7 +1486,9 @@ public sealed class IntelSystem : EntitySystem
             }
 
             var tree = EnsureTechTree();
+            // Mriya start. Seed the single authentication disk after intel spawners are initialized.
             EnsureSingleMRNukeDisk();
+            // Mriya end.
 
             var lows = SpawnIntel(PaperScrapProto, _paperScraps, _paperScrapChances);
             var reports = SpawnIntel(ProgressReportProto, _progressReports, _progressReportChances);

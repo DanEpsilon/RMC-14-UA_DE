@@ -2,6 +2,9 @@ using Robust.Shared.Audio;
 
 namespace Content.Server._Mriya.Nuke;
 
+/// <summary>
+/// Stores the configuration and runtime state for the Mriya strategic nuclear charge.
+/// </summary>
 [RegisterComponent, Access(typeof(MriyaRMCNuclearChargeSystem), typeof(MriyaNukeCommand))]
 public sealed partial class MriyaRMCNuclearChargeComponent : Component
 {
