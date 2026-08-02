@@ -83,11 +83,12 @@
       shader: ""
   - type: Speech
     speechSounds: Xenonid
-  - type: Language # Mriya ксіппі балакала українською замість ксеноїдської
+  - type: Language
     spokenLanguages:
-    - Xeno
+      - English
+      - Xeno
     understoodLanguages:
-    - Xeno
+      - Xeno
     currentLanguage: Xeno
     defaultLanguage: Xeno
 
