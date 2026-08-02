@@ -65,9 +65,9 @@
 # Riot
 - type: entity
   parent: WeaponShotgunM890
-  name: M890 riot shotgun
+  name: M890 протибунтівний дробовик
   id: RMCWeaponShotgunM890Riot
-  description: The Weston-Yamada M890 Shotgun, a semi-automatic shotgun with a quick fire rate. Equipped with a steel blue finish to signify use in riot control. It has been modified to only fire 20G beanbags.
+  description: Унікальний напівавтоматичний дробовик виробництва Вестон-Ямада з високою скорострільністю. Вміщує 8 травматичних набоїв у трубчастий магазин. Розроблений спеціально для придушення бунтів.
   suffix: Riot, Beanbags
   components:
   - type: Sprite
@@ -87,7 +87,7 @@
 - type: entity
   parent: WeaponShotgunM890
   id: WeaponShotgunM890Guard
-  description: The Weston-Yamada M890 Shotgun, a semi-automatic shotgun with a quick fire rate. Equipped with a red handle to signify its use with Military Police Honor Guards.
+  description: Унікальний напівавтоматичний дробовик виробництва Вестон-Ямада з високою скорострільністю. Вміщує 8 дробових набоїв у трубчастий магазин. Оснащений червоною рукояткою, що вказує на його використання почесною вартою ВСП.
   suffix: Honor Guard
   components:
   - type: Sprite
