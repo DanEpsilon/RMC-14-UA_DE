@@ -100,7 +100,8 @@ namespace Content.IntegrationTests.Tests
             "MRSavannah", // Mriya
             "MRAdminFax",
             "MRTundraPVE",
-            "MRTundraNOJOBS"
+            "MRTundraNOJOBS",
+            "MRGladiusPVE"
         };
 
         private static readonly ProtoId<EntityCategoryPrototype> DoNotMapCategory = "DoNotMap";
